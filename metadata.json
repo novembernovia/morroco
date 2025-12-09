@@ -1,0 +1,5 @@
+{
+  "name": "MoroccoTripApp",
+  "description": "A comprehensive travel companion app for a 14-day Morocco trip, featuring an itinerary viewer, currency converter, and essential travel information.",
+  "requestFramePermissions": []
+}
