@@ -42,6 +42,13 @@
       body {
         background-color: #f3f4f6;
       }
+
+      .category-btn.active { 
+        border-color: #f97316; 
+        background-color: #fff7ed; 
+        color: #ea580c; 
+        box-shadow: 0 0 0 2px #f97316;
+      }
     </style>
 <script type="importmap">
 {
@@ -72,6 +79,27 @@
             <span>已複製電話號碼！</span>
         </div>
 
+        <!-- Settlement Modal -->
+        <div id="settlementModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all">
+                <div class="bg-gray-100 p-4 border-b flex justify-between items-center">
+                    <h3 class="font-bold text-lg text-gray-800">💸 結算方案 (建議)</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                </div>
+                <div class="p-5">
+                    <div class="text-sm text-gray-500 mb-4 text-center">
+                        總支出: <span id="modalTotal" class="font-bold text-gray-800"></span> / 
+                        每人應付: <span id="modalAverage" class="font-bold text-gray-800"></span>
+                    </div>
+                    <ul id="debtList" class="space-y-3 text-sm">
+                    </ul>
+                </div>
+                <div class="p-4 border-t bg-gray-50 text-center">
+                    <button onclick="closeModal()" class="bg-gray-800 text-white px-6 py-2 rounded-lg font-bold w-full">關閉</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Bottom Navigation -->
         <div class="bg-white border-t border-stone-200 h-20 flex justify-around items-center px-2 pb-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20 shrink-0 absolute bottom-0 w-full">
             <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-200 text-[#CC5544]">
@@ -90,15 +118,33 @@
                 <i data-lucide="info" stroke-width="2" size="24"></i>
                 <span class="text-[10px] font-bold">資訊</span>
             </button>
-            <button onclick="switchTab('contact')" id="nav-contact" class="nav-btn flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-200 text-[#8B8989]">
-                <i data-lucide="phone" stroke-width="2" size="24"></i>
-                <span class="text-[10px] font-bold">聯絡</span>
+            <button onclick="switchTab('expenses')" id="nav-expenses" class="nav-btn flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-200 text-[#8B8989]">
+                <i data-lucide="wallet" stroke-width="2" size="24"></i>
+                <span class="text-[10px] font-bold">記帳</span>
             </button>
         </div>
     </div>
 
     <!-- Application Logic -->
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } 
+               from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtu9xy4ckNJlxbZYg-lmQSYv7P0ANFEpM",
+            authDomain: "morroco-trip-19e20.firebaseapp.com",
+            projectId: "morroco-trip-19e20",
+            storageBucket: "morroco-trip-19e20.firebasestorage.app",
+            messagingSenderId: "382880482304",
+            appId: "1:382880482304:web:859a877c080d69d20944e5",
+            measurementId: "G-ENHQVBK13L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         // --- DATA & CONSTANTS ---
         const COLORS = {
             header: "bg-[#CC5544]",
@@ -114,6 +160,9 @@
             flightTo: "EK751 (13:10 抵達)",
             flightBack: "EK752 (15:10 起飛)"
         };
+
+        const USERS = ['Oscar', 'Emily', 'Jasmine', 'YC', 'Eugenie'];
+        let globalExpenses = [];
 
         const itinerary = [
             {
@@ -338,7 +387,7 @@
             else if (tabName === 'itinerary') renderItinerary(state.currentDay);
             else if (tabName === 'currency') renderCurrency();
             else if (tabName === 'info') renderInfo();
-            else if (tabName === 'contact') renderContact();
+            else if (tabName === 'expenses') renderExpenses();
 
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
@@ -419,7 +468,7 @@
             const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
 
             const container = document.createElement('div');
-            container.className = "p-4 space-y-4 h-full pb-24";
+            container.className = "p-4 space-y-4 h-full pb-40";
 
             container.innerHTML = `
                 <div class="bg-gradient-to-r from-[#CC5544] to-[#E67E22] p-0.5 rounded-2xl shadow-lg">
@@ -507,12 +556,12 @@
                 </button>
 
                 <button 
-                    onclick="switchTab('contact')"
+                    onclick="switchTab('expenses')"
                     class="w-full bg-white p-6 rounded-2xl shadow-md flex items-center justify-between border-l-8 border-[#556B2F] active:bg-green-50 transition"
                 >
                     <div class="text-left">
-                    <h3 class="text-xl font-bold text-stone-800">緊急聯絡</h3>
-                    <p class="text-stone-500">旅行社 WhatsApp</p>
+                    <h3 class="text-xl font-bold text-stone-800">記帳分帳</h3>
+                    <p class="text-stone-500">團體公帳 & 結算</p>
                     </div>
                     <i data-lucide="arrow-right" class="text-[#556B2F]" size="28"></i>
                 </button>
@@ -854,7 +903,7 @@
                 reader.onload = function(e) {
                     const dataUrl = e.target.result;
                     localStorage.setItem('busImage', dataUrl);
-                    renderInfo(); // Re-render to show image
+                    renderInfo();
                 }
                 reader.readAsDataURL(input.files[0]);
             }
@@ -904,13 +953,11 @@
                     </div>
                 </div>
 
-                <!-- Replaced Group Members with Traffic Info -->
                 <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#8A2BE2]">
                     <h3 class="text-xl font-bold text-[#8A2BE2] mb-3 flex items-center gap-2">
                         <i data-lucide="bus"></i> 交通資訊
                     </h3>
                     <div class="space-y-4">
-                        <!-- License Plate Input -->
                         <div>
                             <label class="block text-sm font-bold text-stone-500 mb-1">車牌號碼</label>
                             <input type="text" 
@@ -920,8 +967,6 @@
                                 placeholder="輸入車牌號碼..." 
                             />
                         </div>
-                        
-                        <!-- Image Upload -->
                         <div>
                             <label class="block text-sm font-bold text-stone-500 mb-1">旅遊巴士照片</label>
                             <div class="relative">
@@ -932,6 +977,29 @@
                             </div>
                             <button onclick="clearBusData()" class="mt-2 text-xs text-red-400 hover:text-red-500 underline">清除資訊</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact moved here -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#556B2F]">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-[#F5F6F0] p-3 rounded-full mb-2">
+                            <i data-lucide="phone" size="24" class="text-[#556B2F]"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-stone-800 mb-1">當地緊急聯絡</h3>
+                        <p class="text-stone-500 text-sm mb-4">${emergencyContact.name}</p>
+                        
+                        <div class="bg-stone-100 px-6 py-3 rounded-xl mb-4 w-full text-center">
+                            <span class="text-xl font-mono font-bold text-stone-800 tracking-wider">${emergencyContact.phone}</span>
+                        </div>
+
+                        <button 
+                            onclick="copyToClipboard('${emergencyContact.phone}')"
+                            class="w-full bg-[#556B2F] text-white text-lg py-3 rounded-xl font-bold shadow-md active:scale-95 transition flex items-center justify-center gap-2"
+                        >
+                            <i data-lucide="copy" size="20"></i>
+                            複製號碼
+                        </button>
                     </div>
                 </div>
 
@@ -951,7 +1019,240 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // --- CONTACT VIEW RENDERER ---
+        // --- EXPENSES VIEW RENDERER ---
+        window.selectCategory = function(category, btnElement) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            const descInput = document.getElementById('descInput');
+            if (category === '其他') {
+                descInput.value = '';
+                descInput.placeholder = "請輸入項目...";
+                descInput.focus();
+            } else {
+                descInput.value = category;
+            }
+        }
+
+        window.submitExpense = async function() {
+            const payer = document.getElementById('userSelector').value;
+            const description = document.getElementById('descInput').value || '未分類';
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const type = document.querySelector('input[name="expenseType"]:checked').value;
+            const btn = document.getElementById('submitBtn');
+
+            if (!amount || amount <= 0) {
+                alert("請輸入有效的金額！");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = "處理中...";
+
+            try {
+                await addDoc(collection(db, "expenses"), {
+                    payer, description, amount, type,
+                    timestamp: serverTimestamp()
+                });
+                document.getElementById('amountInput').value = '';
+                document.getElementById('descInput').value = '';
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.innerHTML = "新增記帳";
+            } catch (error) {
+                console.error("Error:", error);
+                alert("上傳失敗");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        window.calculateDebts = function() {
+            const sharedExpenses = globalExpenses.filter(e => e.type === 'shared');
+            let paid = {};
+            USERS.forEach(u => paid[u] = 0);
+            let totalShared = 0;
+
+            sharedExpenses.forEach(e => {
+                if (paid[e.payer] !== undefined) {
+                    paid[e.payer] += e.amount;
+                    totalShared += e.amount;
+                }
+            });
+
+            const average = totalShared / USERS.length;
+            let balances = USERS.map(u => ({ user: u, balance: paid[u] - average }));
+
+            let debtors = balances.filter(b => b.balance < -0.01).sort((a, b) => a.balance - b.balance);
+            let creditors = balances.filter(b => b.balance > 0.01).sort((a, b) => b.balance - a.balance);
+
+            const debtList = document.getElementById('debtList');
+            debtList.innerHTML = '';
+            
+            document.getElementById('modalTotal').innerText = totalShared.toFixed(2);
+            document.getElementById('modalAverage').innerText = average.toFixed(2);
+
+            let transactions = [];
+            let i = 0, j = 0;
+
+            while (i < debtors.length && j < creditors.length) {
+                let debtor = debtors[i];
+                let creditor = creditors[j];
+                let amount = Math.min(Math.abs(debtor.balance), creditor.balance);
+                transactions.push({ from: debtor.user, to: creditor.user, amount: amount });
+                debtor.balance += amount;
+                creditor.balance -= amount;
+                if (Math.abs(debtor.balance) < 0.01) i++;
+                if (creditor.balance < 0.01) j++;
+            }
+
+            if (transactions.length === 0) {
+                debtList.innerHTML = '<li class="text-center text-green-600 font-bold">🎉 目前帳務平衡，無需付款！</li>';
+            } else {
+                transactions.forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = "flex justify-between items-center bg-yellow-50 p-3 rounded border border-yellow-200";
+                    li.innerHTML = `
+                        <span class="font-bold text-red-600">${t.from}</span>
+                        <span class="text-gray-400 text-xs mx-2">支付給</span>
+                        <span class="font-bold text-green-600">${t.to}</span>
+                        <span class="font-mono font-bold text-gray-800 bg-white px-2 py-1 rounded ml-auto">$${t.amount.toFixed(2)}</span>
+                    `;
+                    debtList.appendChild(li);
+                });
+            }
+            document.getElementById('settlementModal').classList.remove('hidden');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('settlementModal').classList.add('hidden');
+        }
+
+        function renderExpenses() {
+            const html = `
+            <div class="p-4 space-y-5 h-full overflow-y-auto pb-24 no-scrollbar">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">👤 你是誰？</label>
+                    <select id="userSelector" class="w-full p-3 border border-gray-300 rounded-lg bg-white text-lg font-medium focus:ring-2 focus:ring-orange-500 outline-none">
+                        ${USERS.map(u => `<option value="${u}">${u}</option>`).join('')}
+                    </select>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="mb-5">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">💰 金額 (MAD)</label>
+                        <input type="number" id="amountInput" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full p-4 text-3xl text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none font-mono text-gray-700">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">🏷️ 項目</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="selectCategory('餐飲', this)" class="category-btn p-3 border rounded-lg text-gray-600 font-medium transition flex items-center justify-center gap-2">🍽️ 餐飲</button>
+                            <button onclick="selectCategory('交通', this)" class="category-btn p-3 border rounded-lg text-gray-600 font-medium transition flex items-center justify-center gap-2">🚕 交通</button>
+                            <button onclick="selectCategory('紀念品', this)" class="category-btn p-3 border rounded-lg text-gray-600 font-medium transition flex items-center justify-center gap-2">🎁 紀念品</button>
+                            <button onclick="selectCategory('其他', this)" class="category-btn p-3 border rounded-lg text-gray-600 font-medium transition flex items-center justify-center gap-2">📦 其他</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <input type="text" id="descInput" placeholder="備註..." class="w-full p-3 border-b border-gray-300 bg-transparent focus:border-orange-500 outline-none text-gray-600 text-sm">
+                    </div>
+
+                    <div class="flex bg-gray-100 p-1 rounded-lg mb-6">
+                        <label class="flex-1 text-center cursor-pointer py-2 rounded-md transition has-[:checked]:bg-white has-[:checked]:shadow-sm has-[:checked]:text-green-700">
+                            <input type="radio" name="expenseType" value="shared" checked class="hidden">
+                            <span class="text-sm font-bold">👥 公帳</span>
+                        </label>
+                        <label class="flex-1 text-center cursor-pointer py-2 rounded-md transition has-[:checked]:bg-white has-[:checked]:shadow-sm has-[:checked]:text-purple-700">
+                            <input type="radio" name="expenseType" value="personal" class="hidden">
+                            <span class="text-sm font-bold">👤 私帳</span>
+                        </label>
+                    </div>
+
+                    <button id="submitBtn" onclick="submitExpense()" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg font-bold py-4 rounded-xl shadow-lg shadow-orange-200 transition">新增記帳</button>
+                </div>
+
+                <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-5 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-end mb-4">
+                        <div>
+                            <p class="text-gray-400 text-xs uppercase tracking-wide">公帳總額</p>
+                            <p class="text-4xl font-bold mt-1" id="groupTotalDisplay">0.00</p>
+                        </div>
+                        <button onclick="calculateDebts()" class="bg-yellow-500 text-black text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1">💰 結算</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-gray-700 mb-3 px-1">📅 最近紀錄</h3>
+                    <ul id="historyList" class="space-y-3">
+                        <li class="text-center text-gray-400 text-sm py-4"><i data-lucide="loader-2" class="animate-spin"></i> 載入中...</li>
+                    </ul>
+                </div>
+            </div>
+            `;
+            mainContent.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // Re-bind listener if moving between tabs
+            bindExpenseListener();
+        }
+
+        let unsubscribe = null;
+        function bindExpenseListener() {
+            if (unsubscribe) unsubscribe();
+            const q = query(collection(db, "expenses"), orderBy("timestamp", "desc"));
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                globalExpenses = [];
+                let groupTotal = 0;
+                const historyList = document.getElementById('historyList');
+                const totalDisplay = document.getElementById('groupTotalDisplay');
+
+                if (!historyList) return;
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    globalExpenses.push(data);
+                    if (data.type === 'shared') groupTotal += data.amount;
+                });
+
+                if (totalDisplay) totalDisplay.innerText = groupTotal.toFixed(2);
+
+                if (snapshot.empty) {
+                    historyList.innerHTML = '<li class="text-center text-gray-400 py-4">尚未有記帳資料</li>';
+                    return;
+                }
+
+                historyList.innerHTML = '';
+                // Show top 20
+                globalExpenses.slice(0, 20).forEach(data => {
+                    const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString() : '剛剛';
+                    const isShared = data.type === 'shared';
+                    const rowClass = isShared ? "bg-white" : "bg-gray-50 opacity-75";
+                    const badge = isShared 
+                        ? `<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">公帳</span>` 
+                        : `<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">私帳</span>`;
+
+                    const li = document.createElement('li');
+                    li.className = `p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center ${rowClass}`;
+                    li.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="bg-gray-100 h-10 w-10 rounded-full flex items-center justify-center text-lg font-bold text-gray-600">
+                                ${data.payer.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-800 text-sm">${data.description}</div>
+                                <div class="text-xs text-gray-500">${data.payer} • ${date}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-gray-800">${data.amount.toFixed(2)}</div>
+                            <div class="mt-0.5">${badge}</div>
+                        </div>
+                    `;
+                    historyList.appendChild(li);
+                });
+            });
+        }
+
+        // --- SHARED HELPER ---
         window.copyToClipboard = function(text) {
             const showToast = () => {
                 const toast = document.getElementById('toast');
@@ -972,43 +1273,6 @@
                 } catch (err) {}
                 document.body.removeChild(textArea);
             }
-        }
-
-        function renderContact() {
-            const html = `
-            <div class="p-5 h-full flex flex-col items-center justify-center space-y-8 ${COLORS.bg} no-scrollbar">
-                <div class="text-center">
-                    <h2 class="text-2xl font-bold text-stone-800 mb-2 font-serif">遇到問題？</h2>
-                    <p class="text-stone-500">點擊下方按鈕複製或聯絡</p>
-                </div>
-
-                <div class="w-full max-w-sm bg-white p-8 rounded-3xl shadow-xl border-t-4 border-[#556B2F]">
-                    <div class="flex flex-col items-center">
-                        <div class="bg-[#F5F6F0] p-4 rounded-full mb-4">
-                            <i data-lucide="phone" size="40" class="text-[#556B2F]"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-stone-800 mb-1">當地緊急聯絡人</h3>
-                        <p class="text-stone-500 text-sm mb-4">${emergencyContact.name}</p>
-                        
-                        <div class="bg-stone-100 px-6 py-3 rounded-xl mb-6 w-full text-center">
-                            <span class="text-2xl font-mono font-bold text-stone-800 tracking-wider">${emergencyContact.phone}</span>
-                        </div>
-
-                        <button 
-                            onclick="copyToClipboard('${emergencyContact.phone}')"
-                            class="w-full bg-[#556B2F] hover:bg-[#4a5d29] active:bg-[#3e4f22] text-white text-xl py-4 rounded-xl font-bold shadow-lg transform transition active:scale-95 flex items-center justify-center gap-3"
-                        >
-                            <i data-lucide="copy" size="24"></i>
-                            複製電話號碼
-                        </button>
-
-                        <p class="mt-4 text-sm text-stone-400 text-center">建議使用 WhatsApp 聯絡</p>
-                    </div>
-                </div>
-            </div>
-            `;
-            mainContent.innerHTML = html;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // --- START APP ---
