@@ -101,7 +101,7 @@
         </div>
 
         <!-- Bottom Navigation -->
-        <div class="bg-white/90 backdrop-blur-sm border-t border-stone-200 h-20 flex justify-around items-center px-2 pb-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20 shrink-0 absolute bottom-0 w-full">
+        <div class="bg-white/90 backdrop-blur-sm border-t border-stone-200 h-20 flex justify-around items-center px-2 pb-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 shrink-0 fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md sm:absolute sm:left-0 sm:translate-x-0">
             <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-200 text-[#CC5544]">
                 <i data-lucide="calendar" stroke-width="2.5" size="24"></i>
                 <span class="text-[10px] font-bold">首頁</span>
@@ -423,10 +423,10 @@
                 ? `距離出發還有 ${diffDays} 天` 
                 : (diffDays > -14 ? "旅程進行中！" : "旅程已圓滿結束");
 
-            // Updated with novia01.png
+            // Updated with novia01.png and Aspect Ratio 1440/611
             const html = `
             <div class="relative shrink-0 shadow-xl z-10 bg-[#FDF6E3]">
-                <div class="relative w-full h-[250px] bg-gray-200">
+                <div class="relative w-full aspect-[1440/611] bg-gray-200">
                     <img 
                         src="novia01.png" 
                         alt="摩洛哥14天之旅" 
@@ -495,7 +495,7 @@
                         <div class="w-5 h-5 rounded border flex items-center justify-center transition-colors ${item.checked ? 'bg-green-500 border-green-500' : 'border-stone-300 bg-white'}">
                             ${item.checked ? '<i data-lucide="check" size="14" class="text-white"></i>' : ''}
                         </div>
-                        <span class="${item.checked ? 'text-stone-400 line-through' : 'text-stone-700 font-medium'}">${item.text}</span>
+                        <span class="text-sm ${item.checked ? 'text-stone-400 line-through' : 'text-stone-700 font-medium'}">${item.text}</span>
                     </div>
                     <button onclick="deletePackItem(${index})" class="text-stone-300 hover:text-red-400 px-2">
                         <i data-lucide="trash-2" size="14"></i>
@@ -605,19 +605,19 @@
                     <i data-lucide="arrow-right" class="text-[#CC5544]" size="28"></i>
                 </div>
 
-                <!-- PRE-DEPARTURE PREPARATION CARD -->
-                <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-[#4A6FA5]">
-                    <h3 class="text-xl font-bold text-[#4A6FA5] mb-3 flex items-center gap-2">
+                <!-- PRE-DEPARTURE PREPARATION CARD (Brown Theme) -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-[#8B4513]">
+                    <h3 class="text-xl font-bold text-[#8B4513] mb-3 flex items-center gap-2">
                         <i data-lucide="clipboard-list"></i> 出發前準備
                     </h3>
                     
                     <!-- Visa Info -->
-                    <div class="bg-blue-50 p-4 rounded-xl mb-4 text-sm text-stone-700 leading-relaxed">
-                        <h4 class="font-bold text-[#4A6FA5] mb-1 flex items-center gap-1">
+                    <div class="bg-[#FFF8F0] p-4 rounded-xl mb-4 text-sm text-stone-700 leading-relaxed border border-[#E6DCC8]">
+                        <h4 class="font-bold text-[#8B4513] mb-1 flex items-center gap-1">
                             <i data-lucide="passport" size="14"></i> 簽證資訊
                         </h4>
                         <p class="mb-2">對持有香港或澳門特區護照的旅客來說，前往摩洛哥是一趟說走就走的旅行~免簽待遇讓你可輕鬆入境。</p>
-                        <p class="font-bold border-l-4 border-[#4A6FA5] pl-2">🇭🇰 香港特區護照：可免簽停留最多 30 天</p>
+                        <p class="font-bold border-l-4 border-[#8B4513] pl-2">🇭🇰 香港特區護照：可免簽停留最多 30 天</p>
                     </div>
 
                     <!-- Packing List -->
@@ -628,8 +628,8 @@
                         </h4>
                         
                         <div class="flex gap-2 mb-3">
-                            <input type="text" id="new-pack-item" placeholder="新增物品..." class="flex-1 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#4A6FA5] transition-colors">
-                            <button onclick="addPackItem()" class="bg-[#4A6FA5] hover:bg-[#3d5d8a] text-white px-3 py-2 rounded-lg transition-colors"><i data-lucide="plus" size="16"></i></button>
+                            <input type="text" id="new-pack-item" placeholder="新增物品..." class="flex-1 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#8B4513] transition-colors">
+                            <button onclick="addPackItem()" class="bg-[#8B4513] hover:bg-[#6e370f] text-white px-3 py-2 rounded-lg transition-colors"><i data-lucide="plus" size="16"></i></button>
                         </div>
 
                         <ul id="packing-list-ul" class="space-y-2">
@@ -709,7 +709,7 @@
                             ${iconHTML}
                             <span class="text-xl font-bold text-stone-800 leading-none mt-1">${city.current.temp}°</span>
                             <div class="flex gap-1 mt-1 text-[10px] text-stone-400">
-                                <span class="font-medium">H:${city.daily.max}°</span>
+                                <span class="font-medium">H:{city.daily.max}°</span>
                                 <span>L:{city.daily.min}°</span>
                             </div>
                         </div>
