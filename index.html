@@ -164,6 +164,22 @@
         const USERS = ['Oscar', 'Emily', 'Jasmine', 'YC', 'Eugenie'];
         let globalExpenses = [];
 
+        // DEFAULT PACKING LIST
+        const DEFAULT_PACKING_LIST = [
+            { text: "護照 (Passport)", checked: false },
+            { text: "機票 (E-ticket)", checked: false },
+            { text: "萬用轉接頭 (兩孔圓形)", checked: false },
+            { text: "行動電源 (Power Bank)", checked: false },
+            { text: "個人藥品", checked: false },
+            { text: "保暖外套 (沙漠溫差大)", checked: false },
+            { text: "歐元/信用卡", checked: false },
+            { text: "盥洗用品", checked: false },
+            { text: "防曬用品/墨鏡", checked: false },
+            { text: "好走的鞋", checked: false }
+        ];
+
+        let packingList = JSON.parse(localStorage.getItem('morocco_packing_list')) || DEFAULT_PACKING_LIST;
+
         const itinerary = [
             {
                 day: 1,
@@ -435,6 +451,61 @@
             headerContainer.innerHTML = html;
         }
 
+        // --- PACKING LIST LOGIC ---
+        window.togglePackItem = function(index) {
+            packingList[index].checked = !packingList[index].checked;
+            savePackingList();
+            renderPackingList();
+        }
+
+        window.addPackItem = function() {
+            const input = document.getElementById('new-pack-item');
+            const text = input.value.trim();
+            if (text) {
+                packingList.push({ text, checked: false });
+                input.value = '';
+                savePackingList();
+                renderPackingList();
+            }
+        }
+
+        window.deletePackItem = function(index) {
+            if(confirm('確定要刪除此項目嗎？')) {
+                packingList.splice(index, 1);
+                savePackingList();
+                renderPackingList();
+            }
+        }
+
+        function savePackingList() {
+            localStorage.setItem('morocco_packing_list', JSON.stringify(packingList));
+        }
+
+        function renderPackingList() {
+            const listEl = document.getElementById('packing-list-ul');
+            const countEl = document.getElementById('pack-count');
+            if (!listEl) return;
+
+            const checkedCount = packingList.filter(i => i.checked).length;
+            countEl.innerText = `${checkedCount}/${packingList.length} 完成`;
+
+            listEl.innerHTML = packingList.map((item, index) => `
+                <li class="flex items-center gap-3 bg-white p-3 rounded-lg border ${item.checked ? 'border-green-200 bg-green-50' : 'border-stone-100'} transition-all">
+                    <div onclick="togglePackItem(${index})" class="flex-1 flex items-center gap-3 cursor-pointer">
+                        <div class="w-5 h-5 rounded border flex items-center justify-center transition-colors ${item.checked ? 'bg-green-500 border-green-500' : 'border-stone-300 bg-white'}">
+                            ${item.checked ? '<i data-lucide="check" size="14" class="text-white"></i>' : ''}
+                        </div>
+                        <span class="${item.checked ? 'text-stone-400 line-through' : 'text-stone-700 font-medium'}">${item.text}</span>
+                    </div>
+                    <button onclick="deletePackItem(${index})" class="text-stone-300 hover:text-red-400 px-2">
+                        <i data-lucide="trash-2" size="14"></i>
+                    </button>
+                </li>
+            `).join('');
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         // --- HOME VIEW RENDERER ---
         async function renderHome() {
             const tripStartDate = new Date('2026-01-12T00:00:00');
@@ -534,43 +605,44 @@
                     <i data-lucide="arrow-right" class="text-[#CC5544]" size="28"></i>
                 </div>
 
-                <button 
-                    onclick="switchTab('currency')"
-                    class="w-full bg-white p-6 rounded-2xl shadow-md flex items-center justify-between border-l-8 border-[#E6A33E] active:bg-amber-50 transition"
-                >
-                    <div class="text-left">
-                    <h3 class="text-xl font-bold text-stone-800">匯率換算</h3>
-                    <p class="text-stone-500">港幣 ↔ 摩洛哥幣</p>
+                <!-- PRE-DEPARTURE PREPARATION CARD -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-[#4A6FA5]">
+                    <h3 class="text-xl font-bold text-[#4A6FA5] mb-3 flex items-center gap-2">
+                        <i data-lucide="clipboard-list"></i> 出發前準備
+                    </h3>
+                    
+                    <!-- Visa Info -->
+                    <div class="bg-blue-50 p-4 rounded-xl mb-4 text-sm text-stone-700 leading-relaxed">
+                        <h4 class="font-bold text-[#4A6FA5] mb-1 flex items-center gap-1">
+                            <i data-lucide="passport" size="14"></i> 簽證資訊
+                        </h4>
+                        <p class="mb-2">對持有香港或澳門特區護照的旅客來說，前往摩洛哥是一趟說走就走的旅行~免簽待遇讓你可輕鬆入境。</p>
+                        <p class="font-bold border-l-4 border-[#4A6FA5] pl-2">🇭🇰 香港特區護照：可免簽停留最多 30 天</p>
                     </div>
-                    <i data-lucide="arrow-right" class="text-[#E6A33E]" size="28"></i>
-                </button>
-                
-                <button 
-                    onclick="switchTab('info')"
-                    class="w-full bg-white p-6 rounded-2xl shadow-md flex items-center justify-between border-l-8 border-[#4A6FA5] active:bg-blue-50 transition"
-                >
-                    <div class="text-left">
-                    <h3 class="text-xl font-bold text-stone-800">航班與注意事項</h3>
-                    <p class="text-stone-500">天氣、電壓、匯率</p>
-                    </div>
-                    <i data-lucide="arrow-right" class="text-[#4A6FA5]" size="28"></i>
-                </button>
 
-                <button 
-                    onclick="switchTab('expenses')"
-                    class="w-full bg-white p-6 rounded-2xl shadow-md flex items-center justify-between border-l-8 border-[#556B2F] active:bg-green-50 transition"
-                >
-                    <div class="text-left">
-                    <h3 class="text-xl font-bold text-stone-800">記帳分帳</h3>
-                    <p class="text-stone-500">團體公帳 & 結算</p>
+                    <!-- Packing List -->
+                    <div>
+                        <h4 class="font-bold text-stone-700 mb-2 flex justify-between items-center">
+                            <span>🧳 行李清單</span>
+                            <span class="text-xs font-normal text-stone-400" id="pack-count"></span>
+                        </h4>
+                        
+                        <div class="flex gap-2 mb-3">
+                            <input type="text" id="new-pack-item" placeholder="新增物品..." class="flex-1 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#4A6FA5] transition-colors">
+                            <button onclick="addPackItem()" class="bg-[#4A6FA5] hover:bg-[#3d5d8a] text-white px-3 py-2 rounded-lg transition-colors"><i data-lucide="plus" size="16"></i></button>
+                        </div>
+
+                        <ul id="packing-list-ul" class="space-y-2">
+                            <!-- Items go here -->
+                        </ul>
                     </div>
-                    <i data-lucide="arrow-right" class="text-[#556B2F]" size="28"></i>
-                </button>
+                </div>
             `;
 
             mainContent.appendChild(container);
             if (typeof lucide !== 'undefined') lucide.createIcons();
             fetchWeatherAndRender();
+            renderPackingList(); // Render the packing list
         }
 
         async function fetchWeatherAndRender() {
@@ -638,7 +710,7 @@
                             <span class="text-xl font-bold text-stone-800 leading-none mt-1">${city.current.temp}°</span>
                             <div class="flex gap-1 mt-1 text-[10px] text-stone-400">
                                 <span class="font-medium">H:${city.daily.max}°</span>
-                                <span>L:${city.daily.min}°</span>
+                                <span>L:{city.daily.min}°</span>
                             </div>
                         </div>
                     `;
