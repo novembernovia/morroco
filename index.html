@@ -34,6 +34,34 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Boarding Pass Styles */
+        .boarding-pass {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .boarding-pass::before, .boarding-pass::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #FDF6E3; /* Matches page background */
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .boarding-pass::before { left: -10px; }
+        .boarding-pass::after { right: -10px; }
+
+        .pass-divider {
+            border-top: 2px dashed #e2e8f0;
+            position: relative;
+            margin: 0 10px;
+        }
     </style>
 <script type="importmap">
 {
@@ -50,13 +78,11 @@
     <!-- App Container -->
     <div id="app" class="max-w-[430px] mx-auto h-full relative shadow-2xl overflow-hidden flex flex-col bg-[#FDF6E3]">
         <!-- Dynamic Content Container -->
-        <!-- Added padding-bottom to ensure content isn't hidden behind fixed nav -->
         <main id="main-content" class="flex-1 overflow-hidden relative flex flex-col pb-[calc(90px+env(safe-area-inset-bottom))]" style="background-image: url('morocco_bg.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center;">
             <!-- Content injected via JS -->
         </main>
 
         <!-- Bottom Navigation -->
-        <!-- Changed to fixed positioning to guarantee it sticks to bottom on iOS -->
         <div id="bottom-nav" class="fixed bottom-0 left-0 right-0 mx-auto max-w-[430px] w-full bg-white border-t border-stone-200 flex justify-around items-center px-2 py-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 min-h-[80px]">
             <!-- Nav Items injected via JS -->
         </div>
@@ -85,13 +111,30 @@
         // --- CONSTANTS & DATA ---
         const COLORS = {
             header: "bg-[#CC5544]",
-            bg: "bg-transparent", // Transparent to show background image
+            bg: "bg-transparent",
             text: "text-stone-800",
             navActive: "text-[#CC5544]",
             navInactive: "text-[#8B8989]"
         };
 
         const itinerary = [
+            {
+                day: 0,
+                date: "1月11日 (日)",
+                city: "香港國際機場 (HKG)",
+                title: "集結與啟程",
+                content: "準備出發！請於晚上 10:00 前抵達香港國際機場阿聯酋航空櫃位辦理登機手續。",
+                meals: { b: "-", l: "-", d: "-" },
+                features: ["機場集合", "行李托運", "EK381"],
+                souvenirs: ["暫無"],
+                guideTip: "記得檢查護照同身份證，唔好帶漏野呀~~ safe flight~~",
+                timeline: [
+                    { time: "22:00", label: "機場集合 (T1)" },
+                    { time: "00:35", label: "EK381 航班起飛 (1月12日凌晨)" }
+                ],
+                qa: [],
+                reviews: [] // Changed to empty to only show photo upload for Day 0
+            },
             {
                 day: 1,
                 date: "1月12日 (一)",
@@ -134,7 +177,7 @@
                 date: "1月14日 (三)",
                 city: "前往馬拉喀什",
                 title: "紅色之城之路",
-                content: "前往擁有「紅色之城」美譽的馬拉喀什。參觀阿甘油提煉過程。",
+                content: "前往擁有「紅色之城」美譽的馬拉喀什. 參觀阿甘油提煉過程。",
                 meals: { b: "飯店", l: "自理", d: "自理" },
                 features: ["阿甘樹 (山羊上樹奇景)", "傳統榨油工坊"],
                 souvenirs: ["食用/美容阿甘油", "阿甘油肥皂"],
@@ -185,7 +228,7 @@
                 ],
                 qa: [
                     { q: "埃本哈杜古城（Ait Ben Haddou）是什麼民族的早期村落？", a: "摩洛哥原居民「柏柏爾人」 。" },
-                    { q: "在前往髮夾灣的途中，我們在哪裡安排參觀了提煉玫瑰產品的工廠？", a: "在途經的「玫瑰城市」 。" }
+                    { q: "在前往髮夾彎的途中，我們在哪裡安排參觀了提煉玫瑰產品的工廠？", a: "在途經的「玫瑰城市」 。" }
                 ],
                 reviews: ["在埃本哈杜，想像自己在哪部電影中？", "我們經過的「髮夾彎」像什麼？您從高處欣賞到的景色如何？"]
             },
@@ -216,7 +259,7 @@
                 date: "1月18日 (日)",
                 city: "撒哈拉沙漠",
                 title: "沙漠深度探索",
-                content: "探訪遊牧民族，體驗帳篷生活。參觀廢棄礦村及化石區。",
+                content: "探訪遊牧民族，體驗帳篷生活. 參觀廢棄礦村及化石區。",
                 meals: { b: "飯店", l: "自理", d: "包含" },
                 features: ["拜訪遊牧家庭", "黑奴村格納瓦音樂", "化石開採地"],
                 souvenirs: ["三葉蟲化石", "沙漠玫瑰石", "椰棗"],
@@ -319,7 +362,7 @@
                     { time: "09:00", label: "離開舍夫沙萬" },
                     { time: "11:30", label: "丹吉爾 (Tangier)" },
                     { time: "14:00", label: "大力神洞穴/海角" },
-                    { time: "16:00", label: "前往拉巴特方向" } // Assuming styling overnight near Rabat or Tangier based on plan flow
+                    { time: "16:00", label: "前往拉巴特方向" }
                 ],
                 qa: [
                     { q: "丹吉爾隔著哪個海峽與歐洲大陸相望？隔海是哪個歐洲國家？", a: "直布羅陀海峽；西班牙 。" },
@@ -378,7 +421,7 @@
             expenseUsers: ['Oscar', 'Emily', 'Jasmine', 'YC', 'Eugenie'],
             unsubscribeExpenses: null,
             unsubscribeReviews: null,
-            reviewMap: {} // Stores loaded reviews by day
+            reviewMap: {}
         };
 
         // --- GLOBAL HELPER FUNCTIONS ---
@@ -395,7 +438,6 @@
         window.setCurrentDay = function(dayIndex) {
             window.state.currentDay = dayIndex;
             renderApp();
-            // If switching to itinerary, we might want to auto scroll, but renderItinerary handles it
         }
 
         window.generateMapLink = function(text) {
@@ -437,7 +479,6 @@
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        // Compress to JPEG with 0.7 quality
                         resolve(canvas.toDataURL('image/jpeg', 0.7));
                     };
                     img.src = e.target.result;
@@ -461,7 +502,7 @@
             }
         }
 
-        // --- REVIEW FUNCTIONS (FIXED) ---
+        // --- REVIEW FUNCTIONS ---
         window.saveReview = async function(dayIndex) {
             const userSelect = document.getElementById(`reviewUser-${dayIndex}`);
             const inputs = document.querySelectorAll(`.review-input-${dayIndex}`);
@@ -474,13 +515,14 @@
             const answers = Array.from(inputs).map(input => ({ q: input.dataset.question, a: input.value }));
             
             if (!user) { alert("請選擇您的名字"); return; }
-            if (answers.every(item => !item.a.trim()) && !photoInput.files[0] && !existingPhoto) { alert("請填寫內容或上傳照片"); return; }
+            if (answers.length === 0 && !photoInput.files[0] && !existingPhoto) { alert("請上傳照片"); return; }
+            if (answers.length > 0 && answers.every(item => !item.a.trim()) && !photoInput.files[0] && !existingPhoto) { alert("請填寫內容或上傳照片"); return; }
             
             btn.innerHTML = editId ? "更新中..." : "上傳中...";
             btn.disabled = true;
 
             try {
-                let photoData = existingPhoto; // Default to existing
+                let photoData = existingPhoto; 
                 if (photoInput.files && photoInput.files[0]) {
                     photoData = await compressImage(photoInput.files[0]);
                 }
@@ -501,7 +543,6 @@
                     alert("上傳成功！");
                 }
                 
-                // Clear form/Reset
                 window.cancelEdit(dayIndex);
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 
@@ -533,15 +574,12 @@
             const data = window.state.reviewMap[id];
             if(!data) return;
 
-            // Scroll to form
             const form = document.querySelector(`.review-input-${dayIndex}`);
             if(form) form.closest('.space-y-4').scrollIntoView({ behavior: 'smooth' });
 
-            // Populate User
             const userSelect = document.getElementById(`reviewUser-${dayIndex}`);
             if(userSelect) userSelect.value = data.user;
 
-            // Populate Answers
             const inputs = document.querySelectorAll(`.review-input-${dayIndex}`);
             inputs.forEach(input => {
                 const q = input.dataset.question;
@@ -549,7 +587,6 @@
                 if(found) input.value = found.a;
             });
 
-            // Handle Photo
             const previewEl = document.getElementById(`previewPhotoContainer-${dayIndex}`);
             if(data.photo) {
                 previewEl.innerHTML = `<div class="relative h-full w-full"><img src="${data.photo}" class="w-full h-full object-cover rounded-lg" /><button onclick="event.stopPropagation(); window.clearReviewPhoto(${dayIndex})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow-md"><i data-lucide="x" size="12"></i></button></div>`;
@@ -559,11 +596,9 @@
                 window.clearReviewPhoto(dayIndex);
             }
 
-            // Set ID
             const editIdInput = document.getElementById(`editId-${dayIndex}`);
             if(editIdInput) editIdInput.value = id;
 
-            // Update Buttons
             const saveBtn = document.getElementById(`saveReviewBtn-${dayIndex}`);
             const cancelBtn = document.getElementById(`cancelReviewBtn-${dayIndex}`);
             if(saveBtn) saveBtn.innerText = "更新回顧";
@@ -576,11 +611,9 @@
             document.getElementById(`reviewUser-${dayIndex}`).value = '';
             document.querySelectorAll(`.review-input-${dayIndex}`).forEach(i => i.value = '');
             
-            // Reset Photo
             window.clearReviewPhoto(dayIndex);
             document.getElementById(`reviewPhoto-${dayIndex}`).value = '';
 
-            // Buttons
             const saveBtn = document.getElementById(`saveReviewBtn-${dayIndex}`);
             if(saveBtn) saveBtn.innerText = "提交回顧";
             document.getElementById(`cancelReviewBtn-${dayIndex}`).classList.add('hidden');
@@ -590,7 +623,7 @@
             const previewEl = document.getElementById(`previewPhotoContainer-${dayIndex}`);
             if(previewEl) previewEl.innerHTML = '<div class="text-stone-300 flex flex-col items-center justify-center h-full"><i data-lucide="image-plus" size="24"></i><span class="text-xs mt-1">選取照片</span></div>';
             document.getElementById(`existingPhoto-${dayIndex}`).value = '';
-            document.getElementById(`reviewPhoto-${dayIndex}`).value = ''; // Clear file input too
+            document.getElementById(`reviewPhoto-${dayIndex}`).value = ''; 
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
@@ -606,19 +639,17 @@
                      return;
                  }
                  
-                 // Manual client-side sorting
                  const reviews = [];
                  snapshot.forEach(doc => {
                      const rData = { id: doc.id, ...doc.data() };
                      reviews.push(rData);
-                     // Store in global map for editing
                      window.state.reviewMap[doc.id] = rData;
                  });
                  
                  reviews.sort((a, b) => {
                      const tA = a.timestamp ? a.timestamp.seconds : 0;
                      const tB = b.timestamp ? b.timestamp.seconds : 0;
-                     return tB - tA; // Descending
+                     return tB - tA; 
                  });
                  
                  container.innerHTML = '';
@@ -668,7 +699,6 @@
                 });
             }
 
-            // Setup Real-time Listener
             const q = query(collection(db, "expenses"), orderBy("timestamp", "desc"));
             
             if (window.state.unsubscribeExpenses) {
@@ -734,7 +764,7 @@
                 });
 
                 groupTotalDisplay.innerText = groupTotal.toFixed(0);
-                window.globalExpenses = globalExpenses; // Store for calculation
+                window.globalExpenses = globalExpenses; 
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             });
         }
@@ -806,12 +836,10 @@
         window.calculateDebts = function() {
             if (!window.globalExpenses) return;
             
-            // Family Definitions
             const FAMILY_A = ['Oscar', 'Emily'];
             const FAMILY_B = ['Eugenie', 'Jasmine', 'YC'];
             const TOTAL_PEOPLE = 5;
 
-            // 1. Calculate Total Shared Expenses & How much each family paid
             const sharedExpenses = window.globalExpenses.filter(e => e.type === 'shared');
             let totalShared = 0;
             let paidByA = 0;
@@ -826,23 +854,18 @@
                 }
             });
 
-            // 2. Calculate Fair Share (Per Person)
             const costPerPerson = totalShared / TOTAL_PEOPLE;
-            const targetA = costPerPerson * FAMILY_A.length; // 2 people
-            const targetB = costPerPerson * FAMILY_B.length; // 3 people
+            const targetA = costPerPerson * FAMILY_A.length; 
+            const targetB = costPerPerson * FAMILY_B.length; 
 
-            // 3. Calculate Balance (Positive = Paid more than share, Negative = Paid less)
             const balanceA = paidByA - targetA;
-            // balanceB will simply be -balanceA mathematically, but let's calc for clarity
             const balanceB = paidByB - targetB;
 
-            // 4. Update Modal UI
             document.getElementById('modalTotal').innerText = totalShared.toFixed(0);
             document.getElementById('modalAverage').innerText = costPerPerson.toFixed(0);
             const debtList = document.getElementById('debtList');
             debtList.innerHTML = '';
 
-            // 5. Add Family Summary Header
             const summaryDiv = document.createElement('div');
             summaryDiv.className = "mb-4 text-xs text-stone-500 bg-stone-100 p-3 rounded-lg";
             summaryDiv.innerHTML = `
@@ -857,14 +880,12 @@
             `;
             debtList.appendChild(summaryDiv);
 
-            // 6. Generate Transaction
             const li = document.createElement('li');
             li.className = "flex justify-between items-center bg-amber-50 p-3 rounded-lg border border-amber-100";
             
             if (Math.abs(balanceA) < 1) {
                 li.innerHTML = '<span class="text-green-600 font-bold w-full text-center">🎉 兩家帳目已平衡！</span>';
             } else if (balanceA < 0) {
-                // A paid less, A owes B
                 li.innerHTML = `
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2">
@@ -876,7 +897,6 @@
                     <span class="font-bold text-[#CC5544] text-xl">$${Math.abs(balanceA).toFixed(0)}</span>
                 `;
             } else {
-                // A paid more, B owes A
                 li.innerHTML = `
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2">
@@ -1024,7 +1044,7 @@
             const diffTime = today.getTime() - tripStartDate.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             
-            let highlightDayIndex = 0;
+            let highlightDayIndex = 1;
             let highlightTitle = "旅程第一站";
 
             if (diffDays < 0) {
@@ -1039,30 +1059,26 @@
             }
             const highlightItem = itinerary[highlightDayIndex];
             
-            // Header Logic
             const headerDiff = tripStartDate.getTime() - new Date().getTime();
             const headerDays = Math.ceil(headerDiff / (1000 * 60 * 60 * 24));
             const statusText = headerDays > 0 ? `還有 ${headerDays} 天` : (headerDays > -14 ? "旅程進行中" : "旅程結束");
 
             return `
             <div class="h-full overflow-y-auto pb-5 no-scrollbar">
-                <!-- Native App Header -->
                 <div class="relative w-full aspect-[1440/611] shadow-lg">
                      <img src="novia01.png" class="w-full h-full object-cover block" onerror="this.src='https://placehold.co/1440x611/CC5544/FFF?text=Morocco'">
                 </div>
-                <!-- Trip Status Bar -->
                 <div class="bg-[#CC5544] text-white px-5 py-2 flex items-center justify-between shadow-md relative z-10">
                      <div class="flex flex-col leading-none">
                         <span class="text-[10px] opacity-80 font-medium tracking-wider uppercase mb-0.5">Trip Dates</span>
                         <span class="text-lg font-bold font-serif">2026.01.12 - 01.25</span>
                      </div>
-                     <div class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/30 flex items-center gap-2">
+                     <div class="bg-white/20 backdrop-blur-md px-3 py-2 rounded-lg border border-white/30 flex items-center gap-2">
                         <i data-lucide="calendar-heart" size="16" class="text-white"></i>
                         <span class="text-xs font-bold tracking-wide">${statusText}</span>
                      </div>
                 </div>
 
-                <!-- Clocks -->
                 <div class="grid grid-cols-2 gap-3 px-4 mt-3 mb-2">
                     <div class="bg-white/90 backdrop-blur rounded-xl p-3 shadow-sm border border-stone-100 flex items-center justify-between">
                         <div>
@@ -1081,7 +1097,6 @@
                 </div>
                 
                 <div class="p-4 space-y-4 pt-1">
-                    <!-- Highlight Card -->
                     <div class="bg-gradient-to-r from-[#CC5544] to-[#E67E22] p-0.5 rounded-2xl shadow-lg">
                         <div class="bg-white rounded-[14px] p-5">
                            <div class="flex justify-between items-center mb-2">
@@ -1109,31 +1124,27 @@
 
                            <button 
                              onclick="window.setActiveTab('itinerary'); window.setCurrentDay(${highlightDayIndex});"
-                             class="w-full bg-[#FDF6E3] hover:bg-[#F0E68C] text-[#8B4513] text-sm font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-1"
+                             class="w-full bg-[#FDF6E3] hover:bg-[#F0E68C] text-[#8B4513] text-sm font-bold py-2 rounded-xl transition-colors flex items-center justify-center gap-1"
                            >
                              查看詳細行程 <i data-lucide="arrow-right" size="14"></i>
                            </button>
                         </div>
                     </div>
 
-                    <!-- Weather Section -->
                     <div id="weather-section">
                         <h3 class="text-sm font-bold text-stone-500 mb-2 ml-1 flex items-center gap-1">
                           <i data-lucide="thermometer" size="14"></i> 當地實時天氣
                         </h3>
                         <div id="weather-container" class="flex overflow-x-auto gap-3 pb-2 no-scrollbar snap-x snap-mandatory -mx-4 px-4">
-                            <!-- Weather cards injected here -->
                             <div class="p-4 text-center text-xs text-stone-400 w-full">Loading weather...</div>
                         </div>
                     </div>
 
-                    <!-- Pre-departure Preparation (Brown Theme) -->
                     <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-[#8B4513]">
                         <h3 class="text-lg font-bold text-[#8B4513] mb-3 flex items-center gap-2">
                            <i data-lucide="clipboard-list" size="20"></i> 出發前準備
                         </h3>
                         
-                        <!-- Visa Info -->
                         <div class="bg-[#FAF0E6] p-4 rounded-xl mb-4 border border-[#E6D2C3]">
                             <h4 class="font-bold text-[#8B4513] text-sm mb-2 flex items-center gap-2">
                                 <i data-lucide="passport" size="16"></i> 簽證資訊
@@ -1144,7 +1155,6 @@
                             </p>
                         </div>
 
-                        <!-- Packing List -->
                         <div>
                             <div class="flex justify-between items-end mb-2">
                                 <h4 class="font-bold text-[#8B4513] text-sm">行李清單</h4>
@@ -1159,7 +1169,6 @@
                             </div>
 
                             <div id="packing-list-container" class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-                                <!-- List items -->
                             </div>
                         </div>
                     </div>
@@ -1168,7 +1177,6 @@
             `;
         }
 
-        // --- FETCH WEATHER ---
         async function fetchWeather() {
             const CITIES = [
                 { name: 'Casablanca', lat: 33.5731, lng: -7.5898, label: '卡薩布蘭卡' },
@@ -1199,7 +1207,6 @@
                     const min = Math.round(daily.temperature_2m_min[0]);
                     const temp = Math.round(current.temperature_2m);
                     
-                    // Simple Icon Logic
                     let icon = 'sun'; 
                     let color = 'text-orange-400';
                     const code = current.weather_code;
@@ -1246,10 +1253,12 @@
 
         function renderDayReview(dayIndex) {
             const dayData = itinerary[dayIndex];
-            if (!dayData.qa && !dayData.reviews) return '';
+            const isDay0 = dayIndex === 0;
+            
+            // Still render for Day 0 even if reviews array is empty (to allow photo upload)
+            if (!isDay0 && !dayData.qa && (!dayData.reviews || dayData.reviews.length === 0)) return '';
 
-            // Using Orange/Brown Theme
-            const qaHtml = dayData.qa ? dayData.qa.map((item, idx) => `
+            const qaHtml = (dayData.qa && dayData.qa.length > 0) ? dayData.qa.map((item, idx) => `
                 <div class="mb-4 bg-orange-50 p-3 rounded-lg border border-orange-100">
                     <div class="flex items-start gap-2 mb-2">
                         <span class="text-[#CC5544] font-bold shrink-0">問：</span>
@@ -1264,28 +1273,27 @@
                 </div>
             `).join('') : '';
 
-            const reviewsHtml = dayData.reviews ? dayData.reviews.map((q, idx) => `
+            // Day 0 skips the mapped text questions
+            const reviewsHtml = (dayData.reviews && !isDay0) ? dayData.reviews.map((q, idx) => `
                 <div class="mb-3">
                     <label class="block text-sm font-bold text-stone-600 mb-1">${q}</label>
                     <textarea class="review-input-${dayIndex} w-full p-3 rounded-lg border border-stone-200 bg-stone-50 focus:bg-white focus:border-orange-400 outline-none text-sm text-stone-800 transition-colors" rows="2" placeholder="在此輸入心得..." data-question="${q}"></textarea>
                 </div>
             `).join('') : '';
 
-            // Generate User Options based on expenseUsers
             const userOptions = window.state.expenseUsers.map(u => `<option value="${u}">${u}</option>`).join('');
+            const photoLabel = isDay0 ? "上傳出發前大合照" : "上傳今日精選照片";
 
             return `
             <div class="bg-white p-5 rounded-2xl shadow-md border-t-4 border-[#E67E22] mt-5">
                 <h3 class="text-xl font-bold text-[#8B4513] mb-4 flex items-center gap-2 font-serif">
-                    <i data-lucide="notebook-pen" size="20"></i> 每日回顧與心得
+                    <i data-lucide="notebook-pen" size="20"></i> ${isDay0 ? '出發前大合照' : '每日回顧與心得'}
                 </h3>
                 
-                <!-- Q&A Section -->
                 ${qaHtml}
 
-                <hr class="border-stone-100 my-4" />
+                ${!isDay0 && qaHtml ? '<hr class="border-stone-100 my-4" />' : ''}
 
-                <!-- User Input Section -->
                 <div class="space-y-4">
                     <input type="hidden" id="editId-${dayIndex}" value="" />
                     <input type="hidden" id="existingPhoto-${dayIndex}" value="" />
@@ -1304,7 +1312,7 @@
                          <input type="file" id="reviewPhoto-${dayIndex}" accept="image/*" class="hidden" onchange="window.handleReviewPhoto(this, 'previewPhotoContainer-${dayIndex}')">
                          <div id="previewPhotoContainer-${dayIndex}" class="h-32 w-full flex flex-col items-center justify-center text-stone-300 group-hover:text-stone-400">
                             <i data-lucide="image-plus" size="32" class="mb-2"></i>
-                            <span class="text-xs font-bold">上傳今日精選照片</span>
+                            <span class="text-xs font-bold">${photoLabel}</span>
                          </div>
                     </div>
 
@@ -1318,7 +1326,6 @@
                     </div>
                 </div>
 
-                <!-- Saved Reviews List -->
                 <div class="mt-6">
                     <h4 class="text-sm font-bold text-stone-400 mb-3 uppercase tracking-wider">大家的心得</h4>
                     <div id="reviewList-${dayIndex}" class="space-y-3">
@@ -1361,7 +1368,6 @@
 
             const html = `
             <div class="flex flex-col h-full relative">
-                <!-- Sticky Header Container -->
                 <div class="sticky top-0 z-20 shadow-sm">
                     ${renderDayScroller(dayIndex)}
                     <div class="flex items-center justify-between p-4 bg-[#FDF6E3]/95 backdrop-blur-sm border-b border-stone-200">
@@ -1407,7 +1413,6 @@
                         </div>
                     </div>
 
-                    <!-- Souvenirs -->
                     ${dayData.souvenirs && dayData.souvenirs[0] !== "暫無" ? `
                     <div class="bg-[#F0F8FF] p-5 rounded-2xl shadow-md border border-blue-100">
                         <h4 class="text-lg font-bold text-[#4682B4] mb-3 flex items-center gap-2">
@@ -1450,10 +1455,8 @@
             mainContent.innerHTML = html;
             if (typeof lucide !== 'undefined') lucide.createIcons();
             
-            // Init listener for this day's reviews
             window.initReviewListener(dayIndex);
 
-            // Auto-scroll logic
              setTimeout(() => {
                 const scroller = document.getElementById('day-scroller');
                 if (scroller && scroller.children[dayIndex]) {
@@ -1540,6 +1543,151 @@
             <div class="p-5 pb-5 space-y-5 overflow-y-auto h-full no-scrollbar">
                 <h2 class="text-2xl font-bold text-stone-800 mb-4 font-serif">旅行重要資訊</h2>
                 
+                <!-- Boarding Pass Style Flight Details -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold text-stone-800 flex items-center gap-2 ml-1">
+                        <i data-lucide="plane"></i> 航班行程小清單
+                    </h3>
+
+                    <!-- Departure Pass -->
+                    <div class="boarding-pass">
+                        <div class="bg-[#CC5544] text-white px-5 py-3 flex justify-between items-center">
+                            <span class="font-bold tracking-widest">DEPARTURE</span>
+                            <span class="text-xs">QA5J5B</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">1月12日 (週一) 凌晨出發</div>
+                            
+                            <!-- Leg 1 -->
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-2xl font-bold text-stone-800">HKG</p>
+                                    <p class="text-[10px] text-stone-400">HONG KONG</p>
+                                </div>
+                                <div class="flex flex-col items-center px-4">
+                                    <p class="text-[10px] font-bold text-[#CC5544]">EK381</p>
+                                    <div class="w-16 h-[2px] bg-stone-100 relative my-1">
+                                        <div class="absolute -right-1 -top-[5px] text-[#CC5544]"><i data-lucide="plane" size="12"></i></div>
+                                    </div>
+                                    <p class="text-[9px] text-stone-400 font-bold">9h 5m</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-stone-800">DXB</p>
+                                    <p class="text-[10px] text-stone-400">DUBAI</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold text-stone-700">
+                                <span>起飛: 00:35</span>
+                                <span class="text-stone-400">➔</span>
+                                <span>到達: 05:40</span>
+                            </div>
+
+                            <div class="pass-divider"></div>
+
+                            <!-- Layover -->
+                            <div class="text-center py-1">
+                                <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-full">杜拜轉機：停留 1小時45分</span>
+                            </div>
+
+                            <!-- Leg 2 -->
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-2xl font-bold text-stone-800">DXB</p>
+                                    <p class="text-[10px] text-stone-400">DUBAI</p>
+                                </div>
+                                <div class="flex flex-col items-center px-4">
+                                    <p class="text-[10px] font-bold text-[#CC5544]">EK751</p>
+                                    <div class="w-16 h-[2px] bg-stone-100 relative my-1">
+                                        <div class="absolute -right-1 -top-[5px] text-[#CC5544]"><i data-lucide="plane" size="12"></i></div>
+                                    </div>
+                                    <p class="text-[9px] text-stone-400 font-bold">8h 45m</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-stone-800">CMN</p>
+                                    <p class="text-[10px] text-stone-400">CASABLANCA</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold text-stone-700">
+                                <span>起飛: 07:25</span>
+                                <span class="text-stone-400">➔</span>
+                                <span>到達: 13:10</span>
+                            </div>
+                        </div>
+                        <div class="bg-stone-50 p-4 border-t border-stone-100 text-center">
+                            <p class="text-[11px] text-[#CC5544] font-bold">⚠️ 特別注意：請在 1月11日 (週日) 21:30 到達香港機場</p>
+                        </div>
+                    </div>
+
+                    <!-- Return Pass -->
+                    <div class="boarding-pass">
+                        <div class="bg-stone-800 text-white px-5 py-3 flex justify-between items-center">
+                            <span class="font-bold tracking-widest">RETURN</span>
+                            <span class="text-xs">EMIRATES</span>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <div class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">1月25日 (週日) 下午出發</div>
+                            
+                            <!-- Leg 1 -->
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-2xl font-bold text-stone-800">CMN</p>
+                                    <p class="text-[10px] text-stone-400">CASABLANCA</p>
+                                </div>
+                                <div class="flex flex-col items-center px-4">
+                                    <p class="text-[10px] font-bold text-stone-500">EK752</p>
+                                    <div class="w-16 h-[2px] bg-stone-100 relative my-1">
+                                        <div class="absolute -right-1 -top-[5px] text-stone-400"><i data-lucide="plane" size="12"></i></div>
+                                    </div>
+                                    <p class="text-[9px] text-stone-400 font-bold">7h 30m</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-stone-800">DXB</p>
+                                    <p class="text-[10px] text-stone-400">DUBAI</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold text-stone-700">
+                                <span>起飛: 15:10</span>
+                                <span class="text-stone-400">➔</span>
+                                <span>到達: 01:40 (1/26)</span>
+                            </div>
+
+                            <div class="pass-divider"></div>
+
+                            <!-- Layover -->
+                            <div class="text-center py-1">
+                                <span class="bg-stone-100 text-stone-500 text-[10px] font-bold px-3 py-1 rounded-full">杜拜轉機：停留 1小時25分</span>
+                            </div>
+
+                            <!-- Leg 2 -->
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-2xl font-bold text-stone-800">DXB</p>
+                                    <p class="text-[10px] text-stone-400">DUBAI</p>
+                                </div>
+                                <div class="flex flex-col items-center px-4">
+                                    <p class="text-[10px] font-bold text-stone-500">EK384</p>
+                                    <div class="w-16 h-[2px] bg-stone-100 relative my-1">
+                                        <div class="absolute -right-1 -top-[5px] text-stone-400"><i data-lucide="plane" size="12"></i></div>
+                                    </div>
+                                    <p class="text-[9px] text-stone-400 font-bold">10h 35m</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-stone-800">HKG</p>
+                                    <p class="text-[10px] text-stone-400">HONG KONG</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold text-stone-700">
+                                <span>起飛: 03:05</span>
+                                <span class="text-stone-400">➔</span>
+                                <span>到達: 17:40</span>
+                            </div>
+                        </div>
+                        <div class="bg-stone-50 p-4 border-t border-stone-100 text-center">
+                            <p class="text-[11px] text-[#CC5544] font-bold">⚠️ 特別注意：請在 1月25日 (週日) 12:10 前到達機場</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Traffic Info -->
                 <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#556B2F]">
                     <h3 class="text-xl font-bold text-[#556B2F] mb-3 flex items-center gap-2">
@@ -1563,7 +1711,7 @@
                     </div>
                 </div>
 
-                <!-- Emergency Contact (Moved here) -->
+                <!-- Emergency Contact -->
                 <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#CC5544]">
                      <h3 class="text-xl font-bold text-[#CC5544] mb-3 flex items-center gap-2">
                         <i data-lucide="phone" size="20"></i> 緊急聯絡
@@ -1580,24 +1728,7 @@
                      </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#4A6FA5]">
-                    <h3 class="text-xl font-bold text-[#4A6FA5] mb-3 flex items-center gap-2">
-                    <i data-lucide="plane"></i> 航班資訊 (EK)
-                    </h3>
-                    <div class="space-y-4">
-                    <div class="bg-[#F0F8FF] p-4 rounded-xl">
-                        <p class="text-sm text-[#4682B4] font-bold">1月12日 (去)</p>
-                        <p class="text-2xl font-bold text-stone-800">EK751</p>
-                        <p class="text-stone-700 text-lg">13:10 抵達卡薩布蘭卡</p>
-                    </div>
-                    <div class="bg-[#F0F8FF] p-4 rounded-xl">
-                        <p class="text-sm text-[#4682B4] font-bold">1月25日 (回)</p>
-                        <p class="text-2xl font-bold text-stone-800">EK752</p>
-                        <p class="text-stone-700 text-lg">15:10 起飛離開</p>
-                    </div>
-                    </div>
-                </div>
-
+                <!-- Tips -->
                 <div class="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#E6A33E]">
                     <h3 class="text-xl font-bold text-[#D2691E] mb-3 flex items-center gap-2">
                     <i data-lucide="info"></i> 溫馨提示
@@ -1606,6 +1737,7 @@
                     <li class="flex gap-2"><span>🧥</span><span>早晚溫差大，沙漠寒冷，請帶保暖外套。</span></li>
                     <li class="flex gap-2"><span>💵</span><span>準備歐元 (Euro) 當地兌換迪拉姆。</span></li>
                     <li class="flex gap-2"><span>🔌</span><span>電壓 220V，兩孔圓形插座 (歐規)。</span></li>
+                    <li class="flex gap-2 text-red-500 font-bold"><span>🔋</span><span>行動電源不可托運，請隨身攜帶。</span></li>
                     </ul>
                 </div>
             </div>
@@ -1670,7 +1802,6 @@
                 </div>
             </div>
 
-            <!-- Modal -->
             <div id="settlementModal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
                 <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
                     <div class="bg-stone-100 p-4 flex justify-between items-center border-b border-stone-200">
@@ -1733,7 +1864,7 @@
                 renderPackingList();
                 fetchWeather();
                 setInterval(updateClocks, 1000);
-                setTimeout(updateClocks, 0); // Initial call
+                setTimeout(updateClocks, 0); 
             } else if (window.state.activeTab === 'itinerary') {
                 renderItinerary(window.state.currentDay);
             } else if (window.state.activeTab === 'currency') {
@@ -1750,7 +1881,6 @@
         // --- INIT ---
         window.addEventListener('load', () => {
             renderApp();
-            // Start clock interval if on home
             if(window.state.activeTab === 'home') {
                 setInterval(updateClocks, 1000);
             }
