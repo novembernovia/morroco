@@ -282,7 +282,7 @@
                 date: "1月20日 (二)",
                 city: "菲斯 (Fes)",
                 title: "千年古城巡禮",
-                content: "導遊帶領深入老麥地那。參觀古老清真寺、宮殿、皮革廠及傳統手工藝品等。菲斯被列為世界遺產。",
+                content: "導遊帶領深入老麥地那。參觀古老清真寺、宮殿、皮革廠及傳統手工藝品等. 菲斯被列為世界遺產。",
                 meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" },
                 features: ["老麥地那遊覽", "皮革染坊", "古蹟巡禮"],
                 souvenirs: ["皮革製品", "精美陶瓷"],
@@ -519,7 +519,7 @@
                 
             } catch (e) {
                 console.error(e);
-                alert("操作失敗");
+                alert("操作失敗: " + e.message);
             } finally {
                 const btnRef = document.getElementById(`saveReviewBtn-${dayIndex}`);
                 if (btnRef) {
@@ -619,7 +619,11 @@
         window.initReviewListener = function(dayIndex) {
              const q = query(collection(db, "daily_reviews"), where("dayIndex", "==", dayIndex));
              
-             onSnapshot(q, (snapshot) => {
+             if (window.state.unsubscribeReviews) {
+                 window.state.unsubscribeReviews();
+             }
+
+             window.state.unsubscribeReviews = onSnapshot(q, (snapshot) => {
                  const container = document.getElementById(`reviewList-${dayIndex}`);
                  if (!container) return;
                  
@@ -673,6 +677,12 @@
                      container.appendChild(div);
                  });
                  if (typeof lucide !== 'undefined') lucide.createIcons();
+             }, (error) => {
+                 console.error("Firestore reviews error:", error);
+                 const container = document.getElementById(`reviewList-${dayIndex}`);
+                 if (container) {
+                     container.innerHTML = '<div class="text-center text-red-500 py-4 text-xs bg-red-50 rounded-lg">無法載入心得：存取權限不足。<br/>請確保 Firestore 安全規則已設為公開讀取。</div>';
+                 }
              });
         }
 
@@ -755,6 +765,12 @@
                 groupTotalDisplay.innerText = groupTotal.toFixed(0);
                 window.globalExpenses = globalExpenses; 
                 if (typeof lucide !== 'undefined') lucide.createIcons();
+            }, (error) => {
+                console.error("Firestore expenses error:", error);
+                const historyList = document.getElementById('historyList');
+                if (historyList) {
+                    historyList.innerHTML = '<li class="text-center text-red-500 py-4 text-sm bg-red-50 rounded-lg m-4">無法載入記帳：存取權限不足。<br/>請確保 Firestore 安全規則已開放。</li>';
+                }
             });
         }
 
@@ -787,8 +803,8 @@
                 document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active', 'bg-orange-50', 'border-orange-500', 'text-orange-600'));
                 btn.innerHTML = "新增記帳";
             } catch (error) {
-                console.error("Error:", error);
-                alert("上傳失敗");
+                console.error("Error submitExpense:", error);
+                alert("上傳失敗: " + error.message);
             } finally {
                 btn.disabled = false;
             }
@@ -1864,8 +1880,7 @@
                 main.innerHTML = renderHome();
                 renderPackingList();
                 fetchWeather();
-                setInterval(updateClocks, 1000);
-                setTimeout(updateClocks, 0); 
+                updateClocks();
             } else if (window.state.activeTab === 'itinerary') {
                 renderItinerary(window.state.currentDay);
             } else if (window.state.activeTab === 'currency') {
@@ -1882,9 +1897,7 @@
         // --- INIT ---
         window.addEventListener('load', () => {
             renderApp();
-            if(window.state.activeTab === 'home') {
-                setInterval(updateClocks, 1000);
-            }
+            setInterval(updateClocks, 1000);
         });
 
     </script>
