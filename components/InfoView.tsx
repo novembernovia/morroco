@@ -3,33 +3,145 @@ import {
   Plane, 
   Users, 
   Info, 
+  AlertTriangle,
 } from 'lucide-react';
 import { COLORS } from '../constants';
+
+const FlightCard = ({ type, flight1, flight2, connection, note, headerColor, bookingRef }: any) => (
+  <div className="boarding-pass mb-6">
+    {/* Header */}
+    <div className={`${headerColor} text-white px-5 py-3 flex justify-between items-center font-bold tracking-widest text-sm`}>
+      <span>{type}</span>
+      <span>{bookingRef}</span>
+    </div>
+    
+    <div className="p-6 space-y-4">
+      <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{flight1.date}</p>
+      
+      {/* Flight Segment 1 */}
+      <div className="flex justify-between items-center">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-stone-800">{flight1.from}</div>
+          <div className="text-[10px] text-stone-400 font-bold uppercase">{flight1.fromCity}</div>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center px-4">
+          <p className="text-[10px] font-bold text-stone-300 mb-1">{flight1.number}</p>
+          <div className="w-full h-[1px] bg-stone-100 relative">
+            <Plane size={14} className="absolute -right-1 -top-[7px] text-stone-300 rotate-90" />
+          </div>
+          <p className="text-[10px] text-stone-400 font-bold mt-1">{flight1.duration}</p>
+        </div>
+
+        <div className="text-center">
+          <div className="text-3xl font-bold text-stone-800">{flight1.to}</div>
+          <div className="text-[10px] text-stone-400 font-bold uppercase">{flight1.toCity}</div>
+        </div>
+      </div>
+      
+      <div className="flex justify-between items-center text-sm font-bold text-stone-700 px-1">
+        <span>起飛: {flight1.depTime}</span>
+        <div className="h-[1px] w-8 bg-stone-200"></div>
+        <span>到達: {flight1.arrTime}</span>
+      </div>
+
+      <div className="pass-divider"></div>
+      
+      {/* Connection Info */}
+      <div className="flex justify-center">
+        <div className="bg-blue-50 text-blue-600 text-[10px] font-bold px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
+          杜拜轉機：停留 {connection}
+        </div>
+      </div>
+      
+      <div className="pass-divider"></div>
+
+      {/* Flight Segment 2 */}
+      <div className="flex justify-between items-center">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-stone-800">{flight2.from}</div>
+          <div className="text-[10px] text-stone-400 font-bold uppercase">{flight2.fromCity}</div>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center px-4">
+          <p className="text-[10px] font-bold text-stone-300 mb-1">{flight2.number}</p>
+          <div className="w-full h-[1px] bg-stone-100 relative">
+            <Plane size={14} className="absolute -right-1 -top-[7px] text-stone-300 rotate-90" />
+          </div>
+          <p className="text-[10px] text-stone-400 font-bold mt-1">{flight2.duration}</p>
+        </div>
+
+        <div className="text-center">
+          <div className="text-3xl font-bold text-stone-800">{flight2.to}</div>
+          <div className="text-[10px] text-stone-400 font-bold uppercase">{flight2.toCity}</div>
+        </div>
+      </div>
+      
+      <div className="flex justify-between items-center text-sm font-bold text-stone-700 px-1">
+        <span>起飛: {flight2.depTime}</span>
+        <div className="h-[1px] w-8 bg-stone-200"></div>
+        <span>到達: {flight2.arrTime}</span>
+      </div>
+    </div>
+    
+    {/* Footer Alert */}
+    <div className="bg-stone-50 p-4 flex items-center justify-center gap-2 border-t border-stone-100">
+      <AlertTriangle size={14} className="text-orange-400" />
+      <p className="text-[10px] text-stone-500 font-bold uppercase tracking-wider">
+        {note}
+      </p>
+    </div>
+  </div>
+);
 
 export const InfoView: React.FC = () => {
   return (
     <div className={`p-5 pb-24 space-y-5 overflow-y-auto h-full ${COLORS.bg} no-scrollbar`}>
       <h2 className="text-2xl font-bold text-stone-800 mb-4 font-serif">旅行重要資訊</h2>
       
-      {/* Flight Info */}
-      <div className="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#4A6FA5]">
-        <h3 className="text-xl font-bold text-[#4A6FA5] mb-3 flex items-center gap-2">
-          <Plane /> 航班資訊 (阿聯酋)
-        </h3>
-        <div className="space-y-4">
-          <div className="bg-[#F0F8FF] p-4 rounded-xl">
-            <p className="text-sm text-[#4682B4] font-bold">去程 | 1月12日</p>
-            <p className="text-2xl font-bold text-stone-800">EK751</p>
-            <p className="text-stone-700 text-lg">13:10 抵達卡薩布蘭卡</p>
-          </div>
-          <div className="bg-[#F0F8FF] p-4 rounded-xl">
-            <p className="text-sm text-[#4682B4] font-bold">回程 | 1月25日</p>
-            <p className="text-2xl font-bold text-stone-800">EK752</p>
-            <p className="text-stone-700 text-lg">15:10 起飛離開</p>
-            <p className="text-[#CC5544] text-sm mt-1 font-bold">※ 請務必於 12:10 前抵達機場</p>
-          </div>
-        </div>
-      </div>
+      {/* Departure Card */}
+      <FlightCard 
+        type="DEPARTURE"
+        bookingRef="QA5J5B"
+        headerColor="bg-[#CC5544]"
+        flight1={{
+          date: "1月12日 (週一) 凌晨出發",
+          from: "HKG", fromCity: "Hong Kong",
+          to: "DXB", toCity: "Dubai",
+          number: "EK381", duration: "9h 5m",
+          depTime: "00:35", arrTime: "05:40"
+        }}
+        connection="1小時45分"
+        flight2={{
+          from: "DXB", fromCity: "Dubai",
+          to: "CMN", toCity: "Casablanca",
+          number: "EK751", duration: "8h 45m",
+          depTime: "07:25", arrTime: "13:10"
+        }}
+        note="特別注意：請在 1月11日 (週日) 21:30 到達香港機場"
+      />
+
+      {/* Return Card */}
+      <FlightCard 
+        type="RETURN"
+        bookingRef="EMIRATES"
+        headerColor="bg-stone-800"
+        flight1={{
+          date: "1月25日 (週日) 下午出發",
+          from: "CMN", fromCity: "Casablanca",
+          to: "DXB", toCity: "Dubai",
+          number: "EK752", duration: "7h 30m",
+          depTime: "15:10", arrTime: "01:40 (1/26)"
+        }}
+        connection="1小時25分"
+        flight2={{
+          from: "DXB", fromCity: "Dubai",
+          to: "HKG", toCity: "Hong Kong",
+          number: "EK384", duration: "10h 35m",
+          depTime: "03:05", arrTime: "17:40"
+        }}
+        note="特別注意：請在 1月25日 (週日) 12:10 前到達機場"
+      />
 
       {/* Group Members */}
       <div className="bg-white p-5 rounded-2xl shadow-md border-l-4 border-[#8A2BE2]">
