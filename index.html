@@ -147,6 +147,16 @@
             globalExpenses: []
         };
 
+        // --- DEVICE ID FOR LIKES ---
+        window.getDeviceId = () => {
+            let id = localStorage.getItem('trip_device_id');
+            if (!id) {
+                id = 'dev_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('trip_device_id', id);
+            }
+            return id;
+        };
+
         window.handleAvatarError = (img) => { img.style.display = 'none'; img.parentElement.innerHTML = '<div class="text-[8px] text-center p-1 text-stone-500 font-bold">Guide</div>'; };
         window.setActiveTab = (tab) => { window.state.activeTab = tab; window.renderApp(); };
         window.setCurrentDay = (idx) => { window.state.currentDay = idx; window.renderItinerary(idx); };
@@ -258,7 +268,6 @@
                         </div>
                     </div>
 
-                    <!-- Suggested Souvenirs Card - Placement updated to below Guide Tip -->
                     ${d.souvenirs && d.souvenirs[0] !== "暫無" && d.souvenirs[0] !== "無" ? `
                     <div class="bg-[#EBF5FF] p-6 rounded-[2.5rem] shadow-md border border-blue-100">
                         <h4 class="text-lg font-bold text-[#4A90E2] mb-4 flex items-center gap-2 font-serif">
@@ -632,8 +641,10 @@
             window.state.unsubscribeReviews = onSnapshot(q_, snap => {
                 const c = document.getElementById(`reviewList-${idx}`); if(!c) return;
                 c.innerHTML = snap.empty ? '<div class="text-center text-stone-300 py-4 text-xs">分享你的精彩瞬間！</div>' : '';
+                const myId = window.getDeviceId();
                 snap.forEach(docSnap => {
                     const data = { id: docSnap.id, ...docSnap.data() }; window.state.reviewMap[data.id] = data;
+                    const hasLiked = (data.likes || []).includes(myId);
                     const div = document.createElement('div'); div.className = "bg-white/95 p-4 rounded-3xl border border-stone-100 mb-5 shadow-sm relative";
                     div.innerHTML = `
                         <div class="flex justify-between items-start mb-3">
@@ -641,7 +652,10 @@
                         </div>
                         ${data.photo ? `<img src="${data.photo}" class="w-full h-auto object-cover rounded-2xl mb-3 shadow-sm">` : ''}
                         <div class="flex gap-4 mb-2">
-                            <button onclick="window.toggleLike('${data.id}')" class="flex items-center gap-1"><i data-lucide="heart" size="18" class="${data.likes?.length > 0 ? 'fill-rose-500 text-rose-500' : 'text-stone-300'}"></i><span class="text-xs font-bold text-stone-400">${data.likes?.length || 0}</span></button>
+                            <button onclick="window.toggleLike('${data.id}')" class="flex items-center gap-1.5 active:scale-90 transition-transform">
+                                <i data-lucide="heart" size="20" class="${hasLiked ? 'fill-rose-500 text-rose-500' : 'text-stone-300'}"></i>
+                                <span class="text-xs font-bold ${hasLiked ? 'text-rose-500' : 'text-stone-400'}">${data.likes?.length || 0}</span>
+                            </button>
                         </div>
                         <p class="text-xs font-bold text-stone-800 mb-3 whitespace-pre-wrap leading-relaxed">${data.caption || ''}</p>
                         
@@ -696,7 +710,19 @@
             } catch(e) { alert(e.message); } finally { btn.disabled = false; }
         };
 
-        window.toggleLike = async (id) => { const r = window.state.reviewMap[id]; const likes = r.likes || []; const ref = doc(db, "daily_reviews", id); if(likes.includes("團友")) await updateDoc(ref, { likes: arrayRemove("團友") }); else await updateDoc(ref, { likes: arrayUnion("團友") }); };
+        // --- UPDATED LIKE LOGIC ---
+        window.toggleLike = async (id) => {
+            const r = window.state.reviewMap[id];
+            const likes = r.likes || [];
+            const myId = window.getDeviceId();
+            const ref = doc(db, "daily_reviews", id);
+            
+            if(likes.includes(myId)) {
+                await updateDoc(ref, { likes: arrayRemove(myId) });
+            } else {
+                await updateDoc(ref, { likes: arrayUnion(myId) });
+            }
+        };
 
         window.saveLicensePlate = (v) => localStorage.setItem('licensePlate', v);
         window.handleTrafficPhotoUpload = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem('trafficPhoto', e.target.result); const container = document.getElementById('traffic-photo-container'); if(container) container.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`; }; reader.readAsDataURL(input.files[0]); } };
