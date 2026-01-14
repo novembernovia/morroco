@@ -72,13 +72,25 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
+        /* Guide Tip Bubble Animation */
+        .bubble-arrow {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 15px solid white;
+            position: absolute;
+            left: -14px;
+            top: 20px;
+        }
     </style>
 <script type="importmap">
 {
   "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
   }
 }
 </script>
@@ -123,10 +135,10 @@
             { day: 6, date: "1月17日 (六)", city: "托德拉峽谷 → 撒哈拉", title: "前進壯麗沙漠", content: "經過壯觀的髮夾灣、高300公尺的托德拉峽谷。隨後前往撒哈拉，騎駱駝觀賞最合適沙丘的日落。晚上營火晚會唱歌跳舞。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["托德拉峽谷", "髮夾灣行車路", "騎駱駝觀日落", "營火晚會"], souvenirs: ["沙漠回憶"], guideTip: "峽谷的壯觀和沙漠的靜謐是強烈對比。沙漠夜晚低溫，保暖衣物一定要帶在身邊。", accommodation: "沙漠酒店 (Desert Hotel)", timeline: [{ time: "傍晚", label: "騎駱駝進沙丘" }], qa: [{ q: "托德拉峽谷的高度大約是多少？", a: "高達 300 公尺 。" }], reviews: ["日落瞬間的沙漠色彩是什麼樣的？", "營火晚會的柏柏爾音樂好聽嗎？"] },
             { day: 7, date: "1月18日 (日)", city: "撒哈拉沙漠", title: "沙漠深度探索", content: "探訪遊牧民族，感受帳篷生活並品嘗薄荷茶。參觀廢棄礦村、棕櫚樹農田。觀賞北非黑人音樂表演。探索化石及柏柏爾村莊。可選沙漠ATV。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["探訪遊牧民族", "黑人音樂表演", "海洋生物化石", "4x4越野體驗"], souvenirs: ["化石", "椰棗"], guideTip: "今天行程很豐富，可以深度瞭解沙漠人的生活。ATV越野車非常刺激，值得嘗試！", accommodation: "新星空帳篷 (New Sky Tent)", timeline: [], qa: [{ q: "在沙漠中我們會品嘗哪種傳統飲品？", a: "薄荷茶 。" }], reviews: ["星空帳篷的住宿體驗如何？", "你對沙漠中的海洋生物化石感到驚訝嗎？"] },
             { day: 8, date: "1月19日 (一)", city: "撒哈拉 → 菲斯", title: "告別沙漠前往菲斯", content: "清晨絕對不能錯過沙漠日出。早餐後開車前往千年古城菲斯。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["沙漠日出", "橫跨山脈長途車"], souvenirs: ["無"], guideTip: "今天要坐較久的車，但沿途風景從黃沙轉向綠洲和高山，變化很大。", accommodation: "Riad Dari", timeline: [{ time: "清晨", label: "沙漠看日出" }], qa: [], reviews: ["沙漠的日出跟海邊的日出有什麼不同？", "長途車程中哪段風景最吸引你？"] },
-            { day: 9, date: "1月20日 (二)", city: "菲斯 (Fes)", title: "千年古城巡禮", content: "導遊帶領深入老麥地那。參觀古老清真寺、宮殿、皮革廠及傳統手工藝品等. 菲斯被列為世界遺產。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["老麥地那遊覽", "皮革染坊", "古蹟巡禮"], souvenirs: ["皮革製品", "精美陶瓷"], guideTip: "菲斯是感受摩洛哥傳統文化最好的地方。皮革廠的景象非常震撼，但味道也比較重喔。", accommodation: "Riad Dari", timeline: [], qa: [{ q: "菲斯古城是在什麼時候被列為世界文化遺產？", a: "1981 年 。" }], reviews: ["在皮革廠看到的彩色染缸壯觀嗎？", "菲斯的巷弄中你發現了什麼有趣的小店？"] },
-            { day: 10, date: "1月21日 (三)", city: "菲斯 → 舍夫沙萬", title: "羅馬古城與藍城", content: "參觀羅馬遺跡瓦盧比利斯。下午前往舍夫沙萬，步行上山到西班牙清真寺俯瞰藍色山城全景。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["瓦盧比利斯羅馬遺址", "西班牙清真寺日落"], souvenirs: ["無"], guideTip: "瓦盧比利斯出土的羅馬建築儲存完整。傍晚的舍夫沙萬藍色在夕陽下非常美。", accommodation: "Chez Hicham", timeline: [{ time: "下午", label: "抵達舍夫沙萬" }, { time: "傍晚", label: "西班牙清真寺俯瞰全景" }], qa: [], reviews: ["羅馬遺址中你最感興趣的建築是？", "從山上俯瞰整個藍城的感覺如何？"] },
+            { day: 9, date: "1月20日 (二)", city: "菲斯 (Fes)", title: "千年迷宮古城", content: "探索菲斯老城區（麥地那）。參觀皮革廠（染坊）及傳統手工藝。", meals: { b: "飯店", l: "自理", d: "包含" }, features: ["皮革染坊 (大染缸)", "藍門", "古蘭經學院"], souvenirs: ["皮衣/皮包 (最有名)", "馬賽克陶瓷", "銅盤"], guideTip: "菲斯有九千多條巷子，千萬別自己亂跑，一定要跟緊導遊！這裡的皮具世界聞名，染坊的味道雖然重，但景象非常壯觀。", accommodation: "Riad Dari", timeline: [], qa: [{ q: "菲斯古城是在什麼時候被列為世界文化遺產？", a: "1981 年 。" }], reviews: ["在皮革廠看到的彩色染缸壯觀嗎？", "菲斯的巷弄中你發現了什麼有趣的小店？"] },
+            { day: 10, date: "1月21日 (三)", city: "菲斯 → 舍夫沙萬", title: "羅馬遺跡與藍城", content: "參觀瓦盧比利斯羅馬古城。傍晚抵達藍色山城看日落。", meals: { b: "飯店", l: "自理", d: "包含" }, features: ["瓦盧比利斯 (羅馬遺址)", "西班牙清真寺日落"], souvenirs: ["路邊攤販的水果"], guideTip: "下午就會到夢幻的藍色山城！傍晚我們稍微爬一點山路去西班牙清真寺，那是俯瞰整個藍城全景最棒的地方。", accommodation: "Chez Hicham", timeline: [{ time: "下午", label: "抵達舍夫沙萬" }, { time: "傍晚", label: "西班牙清真寺俯瞰全景" }], qa: [], reviews: ["羅馬遺址中你最感興趣的建築是？", "從山上俯瞰整個藍城的感覺如何？"] },
             { day: 11, date: "1月22日 (四)", city: "舍夫沙萬 (Chefchaouen)", title: "藍色童話全日活動", content: "全日自由活動。傳統藍色建築搭配白牆，享有「藍色山城」美譽。藍色大門傳說代表「幸福」。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["藍色山城自由活動", "網紅拍照牆", "慢生活體驗"], souvenirs: ["羊毛編織外套 (Djellaba)", "手工香皂", "編織毯"], guideTip: "今天可以慢慢走，尋找那些隱藏在巷弄中的藍色階梯和可愛貓咪。", accommodation: "Chez Hicham", timeline: [], qa: [{ q: "舍夫沙萬房屋的藍色大門在傳說中代表什麼？", a: "「幸福」 。" }], reviews: ["今天在「藍色山城」拍了多少張照片？", "舍夫沙萬的氣氛是否讓你感到放鬆？"] },
-            { day: 12, date: "1月23日 (五)", city: "舍夫沙萬 → 丹吉爾", title: "海峽彼岸", content: "前往丹吉爾，隔海眺望西班牙。遊覽大力神洞穴、斯帕特爾海角及艾西拉城堡。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["大力神洞穴", "斯帕特爾海角", "艾西拉城堡"], souvenirs: ["無"], guideTip: "站在丹吉爾岸邊，歐洲感覺近在咫尺。大力神洞穴的開口形狀像非洲地圖！", accommodation: "AI AIBA Hammam", timeline: [], qa: [], reviews: ["看到歐洲大陸的那一刻心情如何？", "大力神洞穴的造型你覺得像嗎？"] },
+            { day: 12, date: "1月23日 (五)", city: "舍夫沙萬 → 丹吉爾", title: "海峽彼岸", content: "前往丹吉爾，隔海眺望西班牙. 遊覽大力神洞穴、斯帕特爾海角及艾西拉城堡。", meals: { b: "住宿內享用", l: "自理", d: "住宿內享用" }, features: ["大力神洞穴", "斯帕特爾海角", "艾西拉城堡"], souvenirs: ["無"], guideTip: "站在丹吉爾岸邊，歐洲感覺近在咫尺。大力神洞穴的開口形狀像非洲地圖！", accommodation: "AI AIBA Hammam", timeline: [], qa: [], reviews: ["看到歐洲大陸的那一刻心情如何？", "大力神洞穴的造型你覺得像嗎？"] },
             { day: 13, date: "1月24日 (六)", city: "拉巴特 → 卡薩布蘭卡", title: "皇城與終站", content: "參觀切拉城、哈桑塔、穆罕默德五世陵墓及烏達亞古堡。下午返回卡薩布蘭卡參觀穆罕默德五世廣場。", meals: { b: "住宿內享用", l: "自理", d: "自理" }, features: ["哈桑塔", "拉巴特世遺遺址", "穆罕默德五世廣場"], souvenirs: ["最後補貨"], guideTip: "拉巴特作為首都，有著莊嚴的皇室氣息。回到卡薩布蘭卡意味著旅程接近尾聲。", accommodation: "Odyssee Center Hotel", timeline: [], qa: [], reviews: ["哈桑塔的未完工景象是否震撼？", "最後一晚在卡薩布蘭卡的晚餐吃了什麼？"] },
             { day: 14, date: "1月25日 (日)", city: "卡薩布蘭卡 → 返程", title: "再見摩洛哥", content: "參觀世界唯一建在海上的哈桑二世清真寺。隨後前往機場搭乘 EK752 班機返港。", meals: { b: "住宿內享用", l: "-", d: "-" }, features: ["哈桑二世清真寺", "前往機場"], souvenirs: ["美好的回憶"], guideTip: "這座清真寺宏偉壯觀，是完美的收尾。記得提前 3 小時抵達機場辦理手續。", accommodation: "溫馨的家", timeline: [{ time: "09:00", label: "參觀哈桑二世清真寺" }, { time: "12:10", label: "抵達機場" }, { time: "15:10", label: "班機起飛 (EK752)" }], qa: [{ q: "摩洛哥安檢手續較多，應在起飛前多久抵達機場？", a: "3 小時 。" }], reviews: ["這 14 天旅程中你最喜歡的城市是哪個？", "給這趟旅程一個總結詞吧。"] }
         ];
@@ -145,6 +157,41 @@
             reviewMap: {},
             mealPhotoMap: {},
             globalExpenses: []
+        };
+
+        // --- IMAGE COMPRESSION UTILITY ---
+        window.compressImage = (file, maxWidth = 1024, maxHeight = 1024, quality = 0.7) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width *= maxHeight / height;
+                                height = maxHeight;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = (err) => reject(new Error("Image Load Failed"));
+                };
+                reader.onerror = (err) => reject(new Error("File Read Failed"));
+            });
         };
 
         // --- DEVICE ID FOR LIKES ---
@@ -258,9 +305,14 @@
                         </a>
                     </div>` : ''}
 
+                    <!-- Guide Tip Section -->
                     <div class="bg-rose-50/80 backdrop-blur p-5 rounded-[2.5rem] border border-rose-100 flex items-start gap-4 shadow-sm">
-                        <div class="w-16 h-16 bg-white rounded-full border-4 border-white shadow-md overflow-hidden shrink-0"><img src="novia_circle_image.png" class="w-full h-full object-cover" onerror="window.handleAvatarError(this)"></div>
-                        <div class="flex-1 bg-white p-4 rounded-[1.5rem] rounded-tl-none shadow-sm text-stone-700 text-base border border-rose-50">
+                        <div class="flex flex-col items-center shrink-0">
+                            <div class="w-16 h-16 bg-white rounded-full border-4 border-white shadow-md overflow-hidden"><img src="novia_circle_image.png" class="w-full h-full object-cover" onerror="window.handleAvatarError(this)"></div>
+                            <div class="text-[9px] font-bold text-[#CC5544] mt-1 text-center bg-white px-1.5 py-0.5 rounded-full shadow-sm">Novia &<br/>Stephanie</div>
+                        </div>
+                        <div class="flex-1 bg-white p-4 rounded-[1.5rem] rounded-tl-none shadow-sm text-stone-700 text-base border border-rose-50 relative">
+                            <div class="bubble-arrow"></div>
                             <h5 class="font-bold text-[#CC5544] text-[10px] mb-1 uppercase tracking-widest flex items-center gap-1">
                                 <i data-lucide="message-circle-heart" size="14"></i> 導遊小叮嚀
                             </h5>
@@ -268,16 +320,17 @@
                         </div>
                     </div>
 
-                    ${d.souvenirs && d.souvenirs[0] !== "暫無" && d.souvenirs[0] !== "無" ? `
+                    <!-- Suggested Souvenirs - Positioned Exactly Below Guide Tip -->
+                    ${d.souvenirs && d.souvenirs[0] !== "暫無" && d.souvenirs[0] !== "無" && d.souvenirs[0] !== "美好的回憶" ? `
                     <div class="bg-[#EBF5FF] p-6 rounded-[2.5rem] shadow-md border border-blue-100">
                         <h4 class="text-lg font-bold text-[#4A90E2] mb-4 flex items-center gap-2 font-serif">
                             <i data-lucide="shopping-bag" size="20"></i> 這裡買什麼？
                         </h4>
-                        <div class="space-y-2">
+                        <div class="flex flex-wrap gap-2">
                             ${d.souvenirs.map(s => `
-                            <div class="bg-white/80 p-3 rounded-2xl flex items-center gap-3 text-stone-700 font-bold shadow-sm">
+                            <div class="bg-white p-2.5 rounded-2xl flex items-center gap-2 text-stone-700 font-bold shadow-sm border border-blue-50">
                                 <div class="w-2 h-2 rounded-full bg-[#4A90E2]"></div>
-                                <span class="text-sm">${s}</span>
+                                <span class="text-xs">${s}</span>
                             </div>`).join('')}
                         </div>
                     </div>` : ''}
@@ -357,7 +410,7 @@
                 <div class="w-full space-y-4 max-w-sm px-2">
                     <div class="bg-white p-4 rounded-[1.5rem] shadow-lg border border-stone-50 relative group transition-all"><label class="text-stone-400 font-bold block mb-1 flex justify-between items-center text-[10px] tracking-widest"><span>摩洛哥幣 (MAD)</span><span class="text-stone-300 font-bold text-base">MA</span></label><div class="flex items-baseline justify-between"><input type="number" id="madInput" oninput="window.calcCurrency('mad', this.value)" placeholder="輸入價格" class="w-full text-3xl font-bold outline-none placeholder-stone-100 bg-transparent text-stone-800"><span class="text-stone-200 font-bold text-lg uppercase ml-2">dh</span></div></div>
                     <div class="flex justify-center -my-6 relative z-10"><div class="bg-rose-500 rounded-full p-2.5 text-white shadow-xl border-4 border-white cursor-pointer active:rotate-180 transition-transform duration-500 hover:scale-110" onclick="window.calcCurrency('reset')"><i data-lucide="refresh-cw" size="20"></i></div></div>
-                    <div class="bg-white p-4 rounded-[1.5rem] shadow-lg border border-stone-50 relative group transition-all"><label class="text-stone-400 font-bold block mb-1 flex justify-between items-center text-[10px] tracking-widest"><span>港幣 (HKD)</span><span class="text-stone-300 font-bold text-base">HK</span></label><div class="flex items-baseline justify-between"><input type="number" id="hkdInput" oninput="window.calcCurrency('hkd', this.value)" placeholder="0.0" class="w-full text-3xl font-bold text-stone-800 outline-none placeholder-stone-100 bg-transparent"><span class="text-stone-200 font-bold text-lg uppercase ml-2">$</span></div></div>
+                    <div class="bg-white p-4 rounded-[1.5rem] shadow-lg border border-stone-100 relative group transition-all"><label class="text-stone-400 font-bold block mb-1 flex justify-between items-center text-[10px] tracking-widest"><span>港幣 (HKD)</span><span class="text-stone-300 font-bold text-base">HK</span></label><div class="flex items-baseline justify-between"><input type="number" id="hkdInput" oninput="window.calcCurrency('hkd', this.value)" placeholder="0.0" class="w-full text-3xl font-bold text-stone-800 outline-none placeholder-stone-100 bg-transparent"><span class="text-stone-200 font-bold text-lg uppercase ml-2">$</span></div></div>
                     <div class="mt-4"><div class="grid grid-cols-3 gap-3">${[50, 100, 200, 500, 1000].map(amt => `<button onclick="document.getElementById('madInput').value='${amt}'; window.calcCurrency('mad', '${amt}');" class="bg-white/80 border border-stone-200 text-stone-600 py-3 rounded-2xl font-bold text-lg shadow-sm active:scale-95 transition-all">${amt}</button>`).join('')}<button onclick="window.calcCurrency('reset')" class="bg-rose-50 text-rose-500 border border-rose-100 py-3 rounded-2xl font-bold text-lg shadow-sm active:scale-95 transition-all">清除</button></div></div>
                 </div>
              </div>`;
@@ -501,7 +554,7 @@
 
                 <div class="bg-white p-5 rounded-[2.5rem] shadow-xl border-l-4 border-[#E6A33E]">
                     <h3 class="text-lg font-bold text-[#D2691E] mb-3 flex items-center gap-2 font-serif"><i data-lucide="info" size="20"></i> 溫馨提示</h3>
-                    <ul class="space-y-3 text-sm text-stone-600 font-medium"><li>• 🧥 早晚溫差大，沙漠寒冷，帶保暖外套</li><li>• 💵 帶歐元 (Euro) 當地兌換迪拉姆</li><li>• 🔌 電壓 220V，兩孔圓形插座</li></ul>
+                    <ul class="space-y-3 text-sm text-stone-600 font-medium"><li>• 🧥 早晚溫差大，沙漠寒冷，帶保慢外套</li><li>• 💵 帶歐元 (Euro) 當地兌換迪拉姆</li><li>• 🔌 電壓 220V，兩孔圓形插座</li></ul>
                 </div>
             </div>`;
             lucide.createIcons();
@@ -553,7 +606,19 @@
         };
 
         window.calcCurrency = (t, v) => { const r = 1.3; const hE = document.getElementById('hkdInput'), mE = document.getElementById('madInput'); if(!hE || !mE) return; if(t==='reset'){hE.value='';mE.value='';return;} if(t==='mad')hE.value=v===''?'':(parseFloat(v)/r).toFixed(1); else mE.value=v===''?'':(parseFloat(v)*r).toFixed(1); };
-        window.handleReviewPhoto = (i, p) => { if(i.files[0]) { const r = new FileReader(); r.onload = e => { const c = document.getElementById(p); if(c) c.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-[1.5rem]">`; }; r.readAsDataURL(i.files[0]); } };
+        
+        window.handleReviewPhoto = async (i, p) => { 
+            if(i.files[0]) { 
+                const container = document.getElementById(p);
+                if(container) container.innerHTML = '<div class="text-stone-300 animate-pulse text-xs font-bold">處理中...</div>';
+                try {
+                    const compressed = await window.compressImage(i.files[0]);
+                    if(container) container.innerHTML = `<img src="${compressed}" class="w-full h-full object-cover rounded-[1.5rem]">`;
+                } catch(e) {
+                    alert("處理失敗: " + e.message);
+                }
+            } 
+        };
 
         window.initMealPhotoListener = (idx) => {
             const q_ = query(collection(db, "meal_photos"), where("dayIndex", "==", idx));
@@ -569,10 +634,12 @@
 
         window.handleMealPhoto = async (input, dayIdx, mealType) => {
             if (input.files[0]) {
-                const photo = await new Promise(r => { const r_ = new FileReader(); r_.onload = e => r(e.target.result); r_.readAsDataURL(input.files[0]); });
+                const container = document.getElementById(`mealPhotoContainer-${dayIdx}-${mealType}`);
+                if(container) container.innerHTML = '<div class="text-[8px] animate-pulse">壓縮中</div>';
                 try {
+                    const photo = await window.compressImage(input.files[0]);
                     await addDoc(collection(db, "meal_photos"), { dayIndex: dayIdx, mealType: mealType, photo: photo, timestamp: serverTimestamp() });
-                } catch(e) { alert(e.message); }
+                } catch(e) { alert("上傳失敗: " + e.message); }
             }
         };
 
@@ -692,7 +759,8 @@
         };
 
         window.saveReview = async (idx) => {
-            const u = document.getElementById(`reviewUser-${idx}`).value; const pI = document.getElementById('reviewPhoto-' + idx);
+            const u = document.getElementById(`reviewUser-${idx}`).value; 
+            const pI = document.getElementById('reviewPhoto-' + idx);
             if(!u) return alert("請選擇名字");
             const btn = document.getElementById('saveReviewBtn-' + idx); btn.disabled = true;
             try {
@@ -703,29 +771,39 @@
                     const val = document.getElementById(`reviewText-${idx}-${i}`).value; 
                     if(val) caption += (caption ? "\n\n" : "") + qText + "\n答: " + val; 
                 }
-                let ph = ""; if(pI.files[0]) ph = await new Promise(r => { const r_ = new FileReader(); r_.onload = e => r(e.target.result); r_.readAsDataURL(pI.files[0]); });
-                const payL = { dayIndex: idx, user: u, caption, photo: ph, timestamp: serverTimestamp(), likes: [], comments: [] };
+                
+                let compressedPhoto = ""; 
+                if(pI.files[0]) {
+                    compressedPhoto = await window.compressImage(pI.files[0]);
+                }
+
+                const payL = { dayIndex: idx, user: u, caption, photo: compressedPhoto, timestamp: serverTimestamp(), likes: [], comments: [] };
                 await addDoc(collection(db, "daily_reviews"), payL);
                 window.renderItinerary(idx);
-            } catch(e) { alert(e.message); } finally { btn.disabled = false; }
+            } catch(e) { alert("提交失敗: " + e.message); } finally { btn.disabled = false; }
         };
 
-        // --- UPDATED LIKE LOGIC ---
         window.toggleLike = async (id) => {
             const r = window.state.reviewMap[id];
             const likes = r.likes || [];
             const myId = window.getDeviceId();
             const ref = doc(db, "daily_reviews", id);
-            
-            if(likes.includes(myId)) {
-                await updateDoc(ref, { likes: arrayRemove(myId) });
-            } else {
-                await updateDoc(ref, { likes: arrayUnion(myId) });
-            }
+            if(likes.includes(myId)) await updateDoc(ref, { likes: arrayRemove(myId) });
+            else await updateDoc(ref, { likes: arrayUnion(myId) });
         };
 
         window.saveLicensePlate = (v) => localStorage.setItem('licensePlate', v);
-        window.handleTrafficPhotoUpload = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem('trafficPhoto', e.target.result); const container = document.getElementById('traffic-photo-container'); if(container) container.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`; }; reader.readAsDataURL(input.files[0]); } };
+        
+        window.handleTrafficPhotoUpload = async (input) => { 
+            if (input.files[0]) { 
+                try {
+                    const compressed = await window.compressImage(input.files[0]);
+                    localStorage.setItem('trafficPhoto', compressed); 
+                    const container = document.getElementById('traffic-photo-container'); 
+                    if(container) container.innerHTML = `<img src="${compressed}" class="w-full h-full object-cover">`; 
+                } catch(e) { alert("處理失敗: " + e.message); }
+            } 
+        };
 
         window.addEventListener('load', () => { window.renderApp(); setInterval(window.updateClocks, 1000); });
     </script>
